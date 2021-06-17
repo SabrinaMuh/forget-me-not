@@ -9,6 +9,12 @@ import androidx.annotation.RequiresApi
 import java.sql.Timestamp
 import java.time.LocalDateTime
 
+/*
+ * Forget me not
+ * AbbDev 2021
+ * @aouthers: Sabrina Muhrer, Harald Moitzi
+ */
+
 class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
