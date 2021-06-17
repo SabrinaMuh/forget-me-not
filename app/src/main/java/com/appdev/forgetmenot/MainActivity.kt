@@ -12,7 +12,7 @@ import java.time.LocalDateTime
 /*
  * Forget me not
  * AbbDev 2021
- * @aouthers: Sabrina Muhrer, Harald Moitzi
+ * @authers: Sabrina Muhrer, Harald Moitzi
  */
 
 class MainActivity : AppCompatActivity() {
