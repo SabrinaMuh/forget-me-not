@@ -60,7 +60,8 @@ class MainActivity : AppCompatActivity() {
 
         val button = findViewById<FloatingActionButton>(R.id.addButton)
         button.setOnClickListener {
-            //Toast.makeText(this, "Test", Toast.LENGTH_SHORT).show()
+            val dialog = AddDialogFragment()
+            dialog.show(supportFragmentManager, "add")
         }
     }
 }
