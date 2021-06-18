@@ -5,7 +5,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.sql.Timestamp
 import java.time.LocalDateTime
 
@@ -55,5 +57,10 @@ class MainActivity : AppCompatActivity() {
 
         val adapter = MainEntryAdapter(this, alMainEntries)
         lvMain.adapter = adapter
+
+        val button = findViewById<FloatingActionButton>(R.id.addButton)
+        button.setOnClickListener {
+            //Toast.makeText(this, "Test", Toast.LENGTH_SHORT).show()
+        }
     }
 }
