@@ -1,22 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">ForgetMeNot</string>
     <string name="title">Title</string>
     <string name="start_datetime">Start Datetime:</string>
     <string name="end_datetime">End Datetime:</string>
-
+    <string name="save">Save</string>
+    <string name="chancel">Chancel</string>
     <string name="daily">Daily</string>
     <string name="weekly">Weekly</string>
     <string name="monthly">Monthly</string>
-
-    <string name="save">Save</string>
-    <string name="chancel">Chancel</string>
-
-    <string-array name="category">
-        <item>Category</item>
-        <item>Med</item>
-        <item>Sport</item>
-        <item>Shopping</item>
-        <item>Important</item>
-        <item>Others</item>
-    </string-array>
 </resources>
