@@ -23,6 +23,7 @@ import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity(), AddDialogFragment.NoticeDialogListener{
     var alMainEntries: ArrayList<MainEntry> = ArrayList<MainEntry>()
+    lateinit var adapter: MainEntryAdapter
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,7 +60,7 @@ class MainActivity : AppCompatActivity(), AddDialogFragment.NoticeDialogListener
 
         val lvMain = findViewById<ListView>(R.id.lvMain)
 
-        val adapter = MainEntryAdapter(this, alMainEntries)
+        adapter = MainEntryAdapter(this, alMainEntries)
         lvMain.adapter = adapter
 
         val button = findViewById<FloatingActionButton>(R.id.addButton)
@@ -75,6 +76,8 @@ class MainActivity : AppCompatActivity(), AddDialogFragment.NoticeDialogListener
                                        endDay: Int, endMonth: Int, endYear: Int, endTimeHour: Int, endTimeMinute: Int
     ) {
         alMainEntries.add(MainEntry(title, category, LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute)))
+        adapter.notifyDataSetChanged()
+        Toast.makeText(this, "Entry saved", Toast.LENGTH_SHORT).show()
     }
 
 }
