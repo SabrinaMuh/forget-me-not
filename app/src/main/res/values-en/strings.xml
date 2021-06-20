@@ -9,4 +9,5 @@
     <string name="daily">Daily</string>
     <string name="weekly">Weekly</string>
     <string name="monthly">Monthly</string>
+    <string name="add_category">Add Category</string>
 </resources>
