@@ -18,7 +18,7 @@ import kotlin.collections.ArrayList
  * @authers: Sabrina Muhrer, Harald Moitzi
  */
 
-class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogListener{
+class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogListener, AddCategoryDialogFragment.NoticeDialogListener{
     var alMainEntries: ArrayList<MainEntry> = ArrayList<MainEntry>()
     lateinit var adapter: MainEntryAdapter
     var categories: ArrayList<String> = arrayListOf("Category", "Med", "Sport", "Shopping", "Importand", "Others")
@@ -64,7 +64,10 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         val button = findViewById<FloatingActionButton>(R.id.addButton)
         button.setOnClickListener {
             val dialog = AddEnteryDialogFragment()
-            dialog.show(supportFragmentManager, "add")
+            val args = Bundle()
+            args.putStringArrayList("categories", categories)
+            dialog.arguments = args
+            dialog.show(supportFragmentManager, "addEntery")
         }
     }
 
@@ -90,7 +93,8 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId){
         R.id.add_category->{
-            
+            val dialog = AddCategoryDialogFragment()
+            dialog.show(supportFragmentManager, "addCategorie")
             true
         }
         else -> {

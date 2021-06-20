@@ -11,6 +11,7 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
 import java.lang.ClassCastException
 import java.util.*
+import kotlin.collections.ArrayList
 
 class AddEnteryDialogFragment : DialogFragment(){
     internal lateinit var listener: NoticeDialogListener
@@ -45,6 +46,10 @@ class AddEnteryDialogFragment : DialogFragment(){
             val radioGroup = view.findViewById<RadioGroup>(R.id.radio_group)
             val timePickerEnd = view.findViewById<TimePicker>(R.id.time_picker_end)
 
+            val args: Bundle = requireArguments()
+            val categories: ArrayList <String> = args.getStringArrayList("categories") as ArrayList<String>
+            val adapter: ArrayAdapter<String> = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categories)
+            spinner.adapter = adapter
             timePickerStart.setIs24HourView(true)
             timePickerEnd.setIs24HourView(true)
 
