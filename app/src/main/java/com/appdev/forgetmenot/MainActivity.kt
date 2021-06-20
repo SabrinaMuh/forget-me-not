@@ -5,16 +5,11 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.fragment.app.DialogFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import java.sql.Timestamp
-import java.text.SimpleDateFormat
 import java.time.LocalDateTime
-import java.util.*
 import kotlin.collections.ArrayList
 
 /*
@@ -23,9 +18,10 @@ import kotlin.collections.ArrayList
  * @authers: Sabrina Muhrer, Harald Moitzi
  */
 
-class MainActivity : AppCompatActivity(), AddDialogFragment.NoticeDialogListener{
+class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogListener{
     var alMainEntries: ArrayList<MainEntry> = ArrayList<MainEntry>()
     lateinit var adapter: MainEntryAdapter
+    var categories: ArrayList<String> = arrayListOf("Category", "Med", "Sport", "Shopping", "Importand", "Others")
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,19 +63,24 @@ class MainActivity : AppCompatActivity(), AddDialogFragment.NoticeDialogListener
 
         val button = findViewById<FloatingActionButton>(R.id.addButton)
         button.setOnClickListener {
-            val dialog = AddDialogFragment()
+            val dialog = AddEnteryDialogFragment()
             dialog.show(supportFragmentManager, "add")
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun onDialogPositiveClick(title: String, category: String, startDay: Int,
+    override fun onAddEnteryDialogPositiveClick(title: String, category: String, startDay: Int,
                                        startMonth: Int, startYear: Int, startTimeHour: Int, startTimeMinute: Int, frequency: String,
                                        endDay: Int, endMonth: Int, endYear: Int, endTimeHour: Int, endTimeMinute: Int
     ) {
         alMainEntries.add(MainEntry(title, category, LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute)))
         adapter.notifyDataSetChanged()
         Toast.makeText(this, "Entry saved", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onAddCategoryDialogPositiveClick(title: String){
+        categories.add(title)
+        Toast.makeText(this, "Added Category", Toast.LENGTH_SHORT).show()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
