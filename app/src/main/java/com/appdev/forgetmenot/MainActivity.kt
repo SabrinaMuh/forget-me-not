@@ -1,8 +1,10 @@
 package com.appdev.forgetmenot
 
+import android.database.Cursor
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import androidx.annotation.RequiresApi
@@ -16,6 +18,8 @@ import java.time.LocalDateTime
  */
 
 class MainActivity : AppCompatActivity() {
+    lateinit var dbHelper: DBHelper
+
     //Test
     //Test2
     @RequiresApi(Build.VERSION_CODES.O)
@@ -55,7 +59,63 @@ class MainActivity : AppCompatActivity() {
 
         val lvMain = findViewById<ListView>(R.id.lvMain)
 
-        val adapter = MainEntryAdapter(this, alMainEntries)
+/*        val adapter = MainEntryAdapter(this, alMainEntries)
+        lvMain.adapter = adapter*/
+
+
+        createDB()
+        val cursor: Cursor = dbHelper.readAllEvents()
+        val adapter = EventCursorAdapter(this, cursor)
         lvMain.adapter = adapter
+/*        displayAllEvents()*/
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun createDB() {
+        dbHelper = DBHelper(applicationContext)
+
+
+        dbHelper.addEvent(MainEntry("Fleisch", "Shopping", LocalDateTime.of(2021, 6, 15, 11, 0, 0, 0)))
+
+        dbHelper.addEvent(MainEntry("Cola", "Shopping", LocalDateTime.of(2021, 6, 22, 11, 0, 0, 0)))
+
+        dbHelper.addEvent(MainEntry("Zahnpasta", "Shopping", LocalDateTime.of(2021, 6, 29, 11, 0, 0, 0)))
+
+        // root-event
+        var dateTime: LocalDateTime = LocalDateTime.of(2021, 6, 15, 18, 0, 0, 0)
+        var entry: MainEntry = MainEntry("Laufen", "Sport", dateTime, isRoot = true)
+        var root_id = dbHelper.addEvent(entry)
+        entry.rootID = root_id
+        var count_updated: Int = dbHelper.updateEvent(entry, root_id)
+        Log.d("myDB", "$count_updated updated")
+        var id: Long = root_id
+
+        var x = 9
+        do {
+            dateTime.plusDays(1)
+            entry = MainEntry("Laufen", "Sport", dateTime, rootID = root_id, prevID = id)
+            id = dbHelper.addEvent(entry)
+            x--
+        } while(x > 0)
+
+        dbHelper.deleteEventById(14)
+
+    }
+
+/*    fun displayAllEvents() {
+        Log.i("myDB", "Reading all events:")
+        val cursor = dbHelper.readAllEvents()
+        with(cursor) {
+            while (moveToNext()) {
+                val id = getLong(getColumnIndex(DBHelper.BASE))
+                val title = getString(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_TITLE))
+                val note = getText(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_NOTE))
+                val category = getString(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_CATEGORY))
+                val datetime = getString(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_DATETIME))
+                val isRoot = getInt(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_IS_ROOT))
+                val rootID  = getLong(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_ROOT_ID))
+                val prevID  = getLong(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_PREV_ID))
+            }
+        }
+    }*/
 }
