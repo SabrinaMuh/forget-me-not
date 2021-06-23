@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
 
         var dateTime = LocalDateTime.of(2021, 6, 15, 8, 0, 0, 0)
 
-        alMainEntries.apply {
+/*        alMainEntries.apply {
             add(MainEntry("Fleisch", "Shopping", LocalDateTime.of(2021, 6, 15, 11, 0, 0, 0)))
             add(MainEntry("Aspro", "Med", LocalDateTime.of(2021, 6, 15, 8, 0, 0, 0)))
             add(MainEntry("Laufen", "Sport", LocalDateTime.of(2021, 6, 15, 18, 0, 0, 0)))
@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
             add(MainEntry("Laufen", "Sport", LocalDateTime.of(2021, 6, 23, 18, 0, 0, 0)))
             add(MainEntry("Strom", "Important", LocalDateTime.of(2021, 6, 15, 8, 0, 0, 0) ))
             add(MainEntry("Birthday", "Other", LocalDateTime.of(2021, 6, 15, 8, 0, 0, 0) ))
-        }
+        }*/
 
         val lvMain = findViewById<ListView>(R.id.lvMain)
 
@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity() {
 
 
         createDB()
-        val cursor: Cursor = dbHelper.readAllEvents()
+        val cursor: Cursor = dbHelper.getAllEvents()
         val adapter = EventCursorAdapter(this, cursor)
         lvMain.adapter = adapter
 /*        displayAllEvents()*/
@@ -73,9 +73,13 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     fun createDB() {
         dbHelper = DBHelper(applicationContext)
+        dbHelper.deleteAllEvents()
 
-
-        dbHelper.addEvent(MainEntry("Fleisch", "Shopping", LocalDateTime.of(2021, 6, 15, 11, 0, 0, 0)))
+        dbHelper.addEvent(
+            MainEntry("Fleisch", "Shopping",
+                LocalDateTime.of(2021, 6, 15, 11, 0, 0, 0), isRoot = 1
+            )
+        )
 
         dbHelper.addEvent(MainEntry("Cola", "Shopping", LocalDateTime.of(2021, 6, 22, 11, 0, 0, 0)))
 
@@ -83,31 +87,53 @@ class MainActivity : AppCompatActivity() {
 
         // root-event
         var dateTime: LocalDateTime = LocalDateTime.of(2021, 6, 15, 18, 0, 0, 0)
-        var entry: MainEntry = MainEntry("Laufen", "Sport", dateTime, isRoot = true)
+        var entry: MainEntry = MainEntry("Laufen", "Sport", dateTime, isRoot = 1)
         var root_id = dbHelper.addEvent(entry)
+
+        //set just created id as root_id of the root entry
         entry.rootID = root_id
         var count_updated: Int = dbHelper.updateEvent(entry, root_id)
         Log.d("myDB", "$count_updated updated")
-        var id: Long = root_id
+
+        var prevId: Long = root_id
 
         var x = 9
         do {
-            dateTime.plusDays(1)
-            entry = MainEntry("Laufen", "Sport", dateTime, rootID = root_id, prevID = id)
-            id = dbHelper.addEvent(entry)
+            dateTime = dateTime.plusDays(1)
+            entry = MainEntry("Laufen", "Sport", dateTime, rootID = root_id, prevID = prevId)
+            prevId = dbHelper.addEvent(entry) // new prevId for next entry
             x--
         } while(x > 0)
 
-        dbHelper.deleteEventById(14)
+/*        dbHelper.deleteEventById(14)*/
+
+        val cursor = dbHelper.getEventById(1)
+
+        if(cursor.count > 0) cursor.moveToFirst()
+
+        val title = cursor.getString(cursor.getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_TITLE))
+        val test = ""
+/*            val note = getText(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_NOTE))*/
+
+/*        with(cursor) {
+            while (moveToFirst()) {
+                val title = getString(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_TITLE))
+                val note = getText(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_NOTE))
+                val category = getString(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_CATEGORY))
+                val datetime = getString(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_DATETIME))
+                val isRoot = getInt(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_IS_ROOT))
+                val rootID  = getLong(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_ROOT_ID))
+                val prevID  = getLong(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_PREV_ID))
+            }
+        }*/
 
     }
 
 /*    fun displayAllEvents() {
         Log.i("myDB", "Reading all events:")
-        val cursor = dbHelper.readAllEvents()
+        val cursor = dbHelper.getAllEvents()
         with(cursor) {
             while (moveToNext()) {
-                val id = getLong(getColumnIndex(DBHelper.BASE))
                 val title = getString(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_TITLE))
                 val note = getText(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_NOTE))
                 val category = getString(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_CATEGORY))

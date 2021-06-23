@@ -3,14 +3,18 @@ package com.appdev.forgetmenot
 import android.R.layout
 import android.content.Context
 import android.database.Cursor
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CursorAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class EventCursorAdapter(context: Context, cursor: Cursor): CursorAdapter(context, cursor, 0) {
     companion object {
@@ -31,6 +35,7 @@ class EventCursorAdapter(context: Context, cursor: Cursor): CursorAdapter(contex
 
     // The bindView method is used to bind all data to a given view
     // such as setting the text on a TextView.
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun bindView(view: View, context: Context, cursor: Cursor) {
         // Find fields to populate in inflated template
         val imgCat = view.findViewById<ImageView>(R.id.main_list_img) as ImageView
@@ -52,7 +57,21 @@ class EventCursorAdapter(context: Context, cursor: Cursor): CursorAdapter(contex
         // Populate fields with extracted properties
         tvTitle.text = title
         tvCategory.text = category
-        tvTime.text = datetime
+
+        // CAST DOES NOT WORK --> EXCEPTION
+        // java.time.format.DateTimeParseException: Text '2021-06-15T11:00' could not be parsed at index 10
+
+        /*val formatter: DateTimeFormatter = DateTimeFormatter.ISO_DATE_TIME*/
+        /*
+        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        val tmpDatetime: LocalDateTime = LocalDateTime.parse(datetime, formatter)
+        val test = tmpDatetime.toString()
+        tvTime.text = tmpDatetime.toString()
+        */
+
+        tvTime.text = datetime.replace('T', ' ')
+
+
         tvEdit.text = "Edit"
 
         //formatting
