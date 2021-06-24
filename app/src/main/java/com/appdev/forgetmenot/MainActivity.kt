@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
 
         var dateTime = LocalDateTime.of(2021, 6, 15, 8, 0, 0, 0)
 
-/*        alMainEntries.apply {
+        alMainEntries.apply {
             add(MainEntry("Fleisch", "Shopping", LocalDateTime.of(2021, 6, 15, 11, 0, 0, 0)))
             add(MainEntry("Aspro", "Med", LocalDateTime.of(2021, 6, 15, 8, 0, 0, 0)))
             add(MainEntry("Laufen", "Sport", LocalDateTime.of(2021, 6, 15, 18, 0, 0, 0)))
@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
             add(MainEntry("Laufen", "Sport", LocalDateTime.of(2021, 6, 23, 18, 0, 0, 0)))
             add(MainEntry("Strom", "Important", LocalDateTime.of(2021, 6, 15, 8, 0, 0, 0) ))
             add(MainEntry("Birthday", "Other", LocalDateTime.of(2021, 6, 15, 8, 0, 0, 0) ))
-        }*/
+        }
 
         val lvMain = findViewById<ListView>(R.id.lvMain)
 
