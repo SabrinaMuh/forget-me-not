@@ -25,7 +25,8 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
     lateinit var dbHelper: DBHelper  
   
     var alMainEntries: ArrayList<MainEntry> = ArrayList<MainEntry>()
-    lateinit var adapter: MainEntryAdapter
+/*    lateinit var adapter: MainEntryAdapter*/
+    private lateinit var adapter: EventCursorAdapter
     var categories: ArrayList<String> = arrayListOf("Category", "Med", "Sport", "Shopping", "Important", "Others")
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -33,7 +34,9 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        var dateTime = LocalDateTime.of(2021, 6, 15, 8, 0, 0, 0)
+        dbHelper = DBHelper(applicationContext)
+
+/*        var dateTime = LocalDateTime.of(2021, 6, 15, 8, 0, 0, 0)
 
         alMainEntries.apply {
             add(MainEntry("Fleisch", "Shopping", LocalDateTime.of(2021, 6, 15, 11, 0, 0, 0)))
@@ -59,11 +62,16 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
             add(MainEntry("Laufen", "Sport", LocalDateTime.of(2021, 6, 23, 18, 0, 0, 0)))
             add(MainEntry("Strom", "Important", LocalDateTime.of(2021, 6, 15, 8, 0, 0, 0) ))
             add(MainEntry("Birthday", "Other", LocalDateTime.of(2021, 6, 15, 8, 0, 0, 0) ))
-        }
+        }*/
 
         val lvMain = findViewById<ListView>(R.id.lvMain)
 
-        adapter = MainEntryAdapter(this, alMainEntries)
+/*        adapter = MainEntryAdapter(this, alMainEntries)
+        lvMain.adapter = adapter*/
+
+        // NOW: reading out of DB
+        val cursor: Cursor = dbHelper.getAllEvents()
+        adapter = EventCursorAdapter(this, cursor)
         lvMain.adapter = adapter
 
         val button = findViewById<FloatingActionButton>(R.id.addButton)
@@ -81,8 +89,16 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
                                        startMonth: Int, startYear: Int, startTimeHour: Int, startTimeMinute: Int, frequency: String,
                                        endDay: Int, endMonth: Int, endYear: Int, endTimeHour: Int, endTimeMinute: Int
     ) {
-        alMainEntries.add(MainEntry(title, category, LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute)))
-        adapter.notifyDataSetChanged()
+/*        alMainEntries.add(MainEntry(title, category, LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute)))*/
+
+        dbHelper.addEvent(MainEntry(title, category, LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute)))
+
+/*        adapter.notifyDataSetChanged()*/
+
+        // NOW: reading out of DB
+        val cursor: Cursor = dbHelper.getAllEvents()
+        adapter.changeCursor(cursor);
+
         Toast.makeText(this, "Entry saved", Toast.LENGTH_SHORT).show()
     }
 
