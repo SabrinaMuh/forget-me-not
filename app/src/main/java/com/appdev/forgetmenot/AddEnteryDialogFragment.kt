@@ -9,9 +9,8 @@ import android.os.Bundle
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
-import java.lang.ClassCastException
 import java.util.*
-import kotlin.collections.ArrayList
+
 
 class AddEnteryDialogFragment : DialogFragment(){
     internal lateinit var listener: NoticeDialogListener
@@ -67,7 +66,13 @@ class AddEnteryDialogFragment : DialogFragment(){
                         val startTimeMinute: Int = timePickerStart.minute
                         var frequency: String = "null"
                         if(radioButton != null){
-                            frequency = radioButton.text.toString()
+                            val mySelection = view.findViewById(R.id.radio_group) as RadioGroup
+                            val radioButtonId = mySelection.checkedRadioButtonId
+                            when (radioButtonId) {
+                                R.id.daily -> frequency = "daily"
+                                R.id.weekly -> frequency = "weekly"
+                                R.id.monthly -> frequency = "monthly"
+                            }
                         }
                         val endDateDay: Int = datePickerEnd.dayOfMonth
                         val endDateMonth: Int = datePickerEnd.month + 1

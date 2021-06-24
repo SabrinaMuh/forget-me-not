@@ -189,16 +189,23 @@ class DBHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
 
                     updateEvent(entry, IdOfNextEvent)
                 }
-
+/*
                 // delete current event
                 count = db.delete(
                     EventObject.Entry.TABLE_NAME,
                     " ${BaseColumns._ID} = ?",
                     arrayOf("$id")
-                )
+                )*/
 
                 cursorOfNextEvent.close()
             }
+
+            // delete current event
+            count = db.delete(
+                EventObject.Entry.TABLE_NAME,
+                " ${BaseColumns._ID} = ?",
+                arrayOf("$id")
+            )
         }
 
         cursor.close()

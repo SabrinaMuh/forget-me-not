@@ -23,8 +23,6 @@ import kotlin.collections.ArrayList
 class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogListener, AddCategoryDialogFragment.NoticeDialogListener{
     lateinit var dbHelper: DBHelper  
   
-    var alEventEntries: ArrayList<EventEntry> = ArrayList<EventEntry>()
-/*    lateinit var adapter: MainEntryAdapter*/
     private lateinit var adapter: EventCursorAdapter
     var categories: ArrayList<String> = arrayListOf("Category", "Med", "Sport", "Shopping", "Important", "Others")
 
@@ -35,38 +33,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
 
         dbHelper = DBHelper(applicationContext)
 
-/*        var dateTime = LocalDateTime.of(2021, 6, 15, 8, 0, 0, 0)
-
-        alMainEntries.apply {
-            add(MainEntry("Fleisch", "Shopping", LocalDateTime.of(2021, 6, 15, 11, 0, 0, 0)))
-            add(MainEntry("Aspro", "Med", LocalDateTime.of(2021, 6, 15, 8, 0, 0, 0)))
-            add(MainEntry("Laufen", "Sport", LocalDateTime.of(2021, 6, 15, 18, 0, 0, 0)))
-            add(MainEntry("Cola", "Shopping", LocalDateTime.of(2021, 6, 22, 11, 0, 0, 0)))
-            add(MainEntry("Aspro", "Med", LocalDateTime.of(2021, 6, 16, 8, 0, 0, 0)))
-            add(MainEntry("Laufen", "Sport", LocalDateTime.of(2021, 6, 16, 18, 0, 0, 0)))
-            add(MainEntry("Zahnpasta", "Shopping", LocalDateTime.of(2021, 6, 29, 11, 0, 0, 0)))
-            add(MainEntry("Aspro", "Med", LocalDateTime.of(2021, 6, 17, 8, 0, 0, 0)))
-            add(MainEntry("Laufen", "Sport", LocalDateTime.of(2021, 6, 17, 18, 0, 0, 0)))
-            add(MainEntry("Aspro", "Med", LocalDateTime.of(2021, 6, 18, 8, 0, 0, 0)))
-            add(MainEntry("Laufen", "Sport", LocalDateTime.of(2021, 6, 18, 18, 0, 0, 0)))
-            add(MainEntry("Aspro", "Med", LocalDateTime.of(2021, 6, 19, 8, 0, 0, 0)))
-            add(MainEntry("Laufen", "Sport", LocalDateTime.of(2021, 6, 19, 18, 0, 0, 0)))
-            add(MainEntry("Aspro", "Med", LocalDateTime.of(2021, 6, 20, 8, 0, 0, 0)))
-            add(MainEntry("Laufen", "Sport", LocalDateTime.of(2021, 6, 20, 18, 0, 0, 0)))
-            add(MainEntry("Aspro", "Med", LocalDateTime.of(2021, 6, 21, 8, 0, 0, 0)))
-            add(MainEntry("Laufen", "Sport", LocalDateTime.of(2021, 6, 21, 18, 0, 0, 0)))
-            add(MainEntry("Aspro", "Med", LocalDateTime.of(2021, 6, 22, 8, 0, 0, 0)))
-            add(MainEntry("Laufen", "Sport", LocalDateTime.of(2021, 6, 22, 18, 0, 0, 0)))
-            add(MainEntry("Aspro", "Med", LocalDateTime.of(2021, 6, 23, 8, 0, 0, 0)))
-            add(MainEntry("Laufen", "Sport", LocalDateTime.of(2021, 6, 23, 18, 0, 0, 0)))
-            add(MainEntry("Strom", "Important", LocalDateTime.of(2021, 6, 15, 8, 0, 0, 0) ))
-            add(MainEntry("Birthday", "Other", LocalDateTime.of(2021, 6, 15, 8, 0, 0, 0) ))
-        }*/
-
         val lvMain = findViewById<ListView>(R.id.lvMain)
-
-/*        adapter = MainEntryAdapter(this, alMainEntries)
-        lvMain.adapter = adapter*/
 
         // NOW: reading out of DB
         val cursor: Cursor = dbHelper.getAllEvents()
@@ -88,11 +55,45 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
                                        startMonth: Int, startYear: Int, startTimeHour: Int, startTimeMinute: Int, frequency: String,
                                        endDay: Int, endMonth: Int, endYear: Int, endTimeHour: Int, endTimeMinute: Int
     ) {
-/*        alMainEntries.add(MainEntry(title, category, LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute)))*/
+        //generate number of events and save into db
+        var startDateTime: LocalDateTime = LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute)
+        val endDateTime: LocalDateTime = LocalDateTime.of(endYear, endMonth, endDay, endTimeHour, endTimeMinute)
 
-        dbHelper.addEvent(EventEntry(title, category, LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute)))
+        // at root event
+        val rootId = dbHelper.addEvent(EventEntry(title, category, LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute), isRoot = true))
+        // set rootid of root to itself --> not needed any more
+        /*
+        event.rootID = rootId
+        dbHelper.updateEvent(event, rootId) // set rootid of root to itself
+        */
 
-/*        adapter.notifyDataSetChanged()*/
+        if(frequency.equals("daily")) {
+            startDateTime = startDateTime.plusDays(1)
+
+            var prevId = rootId
+            while(startDateTime.compareTo(endDateTime) <= 0) {
+                prevId = dbHelper.addEvent(EventEntry(title, category, startDateTime, isRoot = false, rootId, prevId))
+                startDateTime = startDateTime.plusDays(1)
+            }
+        }
+        else if(frequency.equals("weekly")) {
+            startDateTime = startDateTime.plusWeeks(1)
+
+            var prevId = rootId
+            while(startDateTime.compareTo(endDateTime) <= 0) {
+                prevId = dbHelper.addEvent(EventEntry(title, category, startDateTime, isRoot = false, rootId, prevId))
+                startDateTime = startDateTime.plusWeeks(1)
+            }
+        }
+        else if(frequency.equals("monthly")) {
+            startDateTime = startDateTime.plusMonths(1)
+
+            var prevId = rootId
+            while(startDateTime.compareTo(endDateTime) <= 0) {
+                prevId = dbHelper.addEvent(EventEntry(title, category, startDateTime, isRoot = false, rootId, prevId))
+                startDateTime = startDateTime.plusMonths(1)
+            }
+        }
 
         // NOW: reading out of DB
         val cursor: Cursor = dbHelper.getAllEvents()
@@ -122,7 +123,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+/*    @RequiresApi(Build.VERSION_CODES.O)
     fun createDB() {
         dbHelper = DBHelper(applicationContext)
         dbHelper.deleteAllEvents()
@@ -159,35 +160,6 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
 
         val count = dbHelper.deleteEventById(13)
         Log.d("myDB", "$count deleted")
-
-
-/*        with(cursor) {
-            while (moveToFirst()) {
-                val title = getString(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_TITLE))
-                val note = getText(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_NOTE))
-                val category = getString(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_CATEGORY))
-                val datetime = getString(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_DATETIME))
-                val isRoot = getInt(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_IS_ROOT))
-                val rootID  = getLong(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_ROOT_ID))
-                val prevID  = getLong(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_PREV_ID))
-            }
-        }*/
-
-    }
-
-/*    fun displayAllEvents() {
-        Log.i("myDB", "Reading all events:")
-        val cursor = dbHelper.getAllEvents()
-        with(cursor) {
-            while (moveToNext()) {
-                val title = getString(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_TITLE))
-                val note = getText(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_NOTE))
-                val category = getString(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_CATEGORY))
-                val datetime = getString(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_DATETIME))
-                val isRoot = getInt(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_IS_ROOT))
-                val rootID  = getLong(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_ROOT_ID))
-                val prevID  = getLong(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_PREV_ID))
-            }
-        }
     }*/
+
 }
