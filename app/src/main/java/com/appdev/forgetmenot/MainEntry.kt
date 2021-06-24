@@ -4,14 +4,14 @@ import android.icu.number.IntegerWidth
 import java.time.DateTimeException
 import java.time.LocalDateTime
 
-class MainEntry(title: String, category: String, dateTime: LocalDateTime, isRoot: Int = 0, rootID: Long = 0, prevID: Long = 0) {
+class MainEntry(title: String, category: String, dateTime: LocalDateTime, isRoot: Boolean = false, rootID: Long = 0, prevID: Long = 0) {
 
     var id: Long
     var title: String
     var note: String
     var category: String
     var dateTime: LocalDateTime
-    var isRoot: Int = 0
+    var isRoot: Boolean = false
     var rootID: Long = 0
     var prevID: Long = 0
 

@@ -9,7 +9,7 @@ import android.os.Build
 import android.provider.BaseColumns
 import android.util.Log
 import androidx.annotation.RequiresApi
-import java.text.SimpleDateFormat
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 class DBHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
@@ -68,7 +68,15 @@ class DBHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
     fun getEventById(id: Long) : Cursor {
         val db = this.readableDatabase
         val query = "SELECT * FROM ${EventObject.Entry.TABLE_NAME} WHERE ${BaseColumns._ID} = $id"
-        Log.d("myDB", "read event with id {$id}")
+        Log.d("myDB", "read event with id ${id}")
+        return db.rawQuery(query, null)
+    }
+
+
+    fun getEventByPrevId(prevId: Long) : Cursor {
+        val db = this.readableDatabase
+        val query = "SELECT * FROM ${EventObject.Entry.TABLE_NAME} WHERE ${EventObject.Entry.COLUMN_NAME_PREV_ID} = $prevId"
+        Log.d("myDB", "read event with prevId ${prevId}")
         return db.rawQuery(query, null)
     }
 
@@ -76,8 +84,6 @@ class DBHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
     @RequiresApi(Build.VERSION_CODES.O)
     fun addEvent(entry: MainEntry) : Long {
         val db = this.writableDatabase
-
-/*        val sdf: SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")*/
 
         //create content values
         val values = ContentValues().apply {
@@ -137,6 +143,7 @@ class DBHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun deleteEventById(id: Long) : Int {
         val db = this.writableDatabase
         var count = 0
@@ -146,18 +153,50 @@ class DBHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
         if(cursor.count > 0) {
             cursor.moveToFirst()
 
-            val is_root = cursor.getInt(cursor.getColumnIndex(EventObject.Entry.COLUMN_NAME_IS_ROOT))
+            val isRoot = cursor.getInt(cursor.getColumnIndex(EventObject.Entry.COLUMN_NAME_IS_ROOT))
 
-            if(is_root == 1) {
+            // selected event is the root --> delete the whole series (all events with the same root-id, including root itself)
+            if(isRoot == 1) {
+                count = db.delete(
+                    EventObject.Entry.TABLE_NAME,
+                    "${EventObject.Entry.COLUMN_NAME_ROOT_ID} = ?",
+                    arrayOf("$id")
+                )
+            }
+            // selected event is NOT root --> if event is in the middle, set the prevID of the next event to the prevID of this event, cause this event will be deleted
+            // finally delete this event
+            else {
+                val newCursor = getEventByPrevId(id)
 
+                if(newCursor.count > 0) {
+                    newCursor.moveToFirst()
+
+                    val newId = newCursor.getLong(newCursor.getColumnIndex("_id"))
+                    val title = newCursor.getString(newCursor.getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_TITLE))
+                    val note = newCursor.getString(newCursor.getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_NOTE))
+                    val category = newCursor.getString(newCursor.getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_CATEGORY))
+                    val datetime = newCursor.getString(newCursor.getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_DATETIME))
+                    val isRoot = newCursor.getInt(newCursor.getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_IS_ROOT))
+                    val rootID = newCursor.getLong(newCursor.getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_ROOT_ID))
+                    val prevID = cursor.getLong(cursor.getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_PREV_ID))
+
+                    val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
+                    val tmpDatetime: LocalDateTime = LocalDateTime.parse(datetime, formatter)
+                    val myIsRoot: Boolean = if(isRoot == 1) true; else false
+
+                    var entry: MainEntry = MainEntry(title, category, tmpDatetime, myIsRoot, rootID, prevID)
+
+                    updateEvent(entry, newId)
+                }
+
+                count = db.delete(
+                    EventObject.Entry.TABLE_NAME,
+                    " ${BaseColumns._ID} = ?",
+                    arrayOf("$id")
+                )
             }
         }
 
-        count = db.delete(
-            EventObject.Entry.TABLE_NAME,
-            "${BaseColumns._ID} = ?",
-            arrayOf("$id")
-        )
         Log.d("myDB", "event with $id deleted: count $count")
         return count
     }

@@ -77,17 +77,17 @@ class MainActivity : AppCompatActivity() {
 
         dbHelper.addEvent(
             MainEntry("Fleisch", "Shopping",
-                LocalDateTime.of(2021, 6, 15, 11, 0, 0, 0), isRoot = 1
+                LocalDateTime.of(2021, 6, 15, 11, 0, 0, 0), isRoot = true, rootID = 1
             )
         )
 
-        dbHelper.addEvent(MainEntry("Cola", "Shopping", LocalDateTime.of(2021, 6, 22, 11, 0, 0, 0)))
+        dbHelper.addEvent(MainEntry("Cola", "Shopping", LocalDateTime.of(2021, 6, 22, 11, 0, 0, 0), rootID = 1))
 
-        dbHelper.addEvent(MainEntry("Zahnpasta", "Shopping", LocalDateTime.of(2021, 6, 29, 11, 0, 0, 0)))
+        dbHelper.addEvent(MainEntry("Zahnpasta", "Shopping", LocalDateTime.of(2021, 6, 29, 11, 0, 0, 0), rootID = 1))
 
         // root-event
         var dateTime: LocalDateTime = LocalDateTime.of(2021, 6, 15, 18, 0, 0, 0)
-        var entry: MainEntry = MainEntry("Laufen", "Sport", dateTime, isRoot = 1)
+        var entry: MainEntry = MainEntry("Laufen", "Sport", dateTime, isRoot = true)
         var root_id = dbHelper.addEvent(entry)
 
         //set just created id as root_id of the root entry
@@ -105,15 +105,9 @@ class MainActivity : AppCompatActivity() {
             x--
         } while(x > 0)
 
-/*        dbHelper.deleteEventById(14)*/
+        val count = dbHelper.deleteEventById(4)
+        Log.d("myDB", "$count deleted")
 
-        val cursor = dbHelper.getEventById(1)
-
-        if(cursor.count > 0) cursor.moveToFirst()
-
-        val title = cursor.getString(cursor.getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_TITLE))
-        val test = ""
-/*            val note = getText(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_NOTE))*/
 
 /*        with(cursor) {
             while (moveToFirst()) {

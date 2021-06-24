@@ -62,14 +62,13 @@ class EventCursorAdapter(context: Context, cursor: Cursor): CursorAdapter(contex
         // java.time.format.DateTimeParseException: Text '2021-06-15T11:00' could not be parsed at index 10
 
         /*val formatter: DateTimeFormatter = DateTimeFormatter.ISO_DATE_TIME*/
-        /*
-        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-        val tmpDatetime: LocalDateTime = LocalDateTime.parse(datetime, formatter)
-        val test = tmpDatetime.toString()
-        tvTime.text = tmpDatetime.toString()
-        */
 
-        tvTime.text = datetime.replace('T', ' ')
+        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
+        val tmpDatetime: LocalDateTime = LocalDateTime.parse(datetime, formatter)
+        tvTime.text = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").format(tmpDatetime)
+
+
+/*        tvTime.text = datetime.replace('T', ' ')*/
 
 
         tvEdit.text = "Edit"
