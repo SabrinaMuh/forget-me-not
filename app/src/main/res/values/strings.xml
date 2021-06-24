@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">ForgetMeNot</string>
     <string name="title">Title</string>
+    <string name="category_name">Category Name</string>
     <string name="start_datetime">Start Datetime:</string>
     <string name="end_datetime">End Datetime:</string>
 
@@ -10,6 +11,8 @@
 
     <string name="save">Save</string>
     <string name="chancel">Chancel</string>
+
+    <string name="add_category">Add Category</string>
 
     <string-array name="category">
         <item>Category</item>

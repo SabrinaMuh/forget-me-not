@@ -11,12 +11,13 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
 import java.lang.ClassCastException
 import java.util.*
+import kotlin.collections.ArrayList
 
-class AddDialogFragment : DialogFragment(){
+class AddEnteryDialogFragment : DialogFragment(){
     internal lateinit var listener: NoticeDialogListener
 
     interface NoticeDialogListener{
-        fun onDialogPositiveClick(title: String, category: String, startDay: Int, startMonth: Int,
+        fun onAddEnteryDialogPositiveClick(title: String, category: String, startDay: Int, startMonth: Int,
                                   startYear: Int, startTimeHour: Int, startTimeMinute: Int,
                                   frequency: String, endDay: Int, endMonth: Int,
                                   endYear: Int, endTimeHour: Int, endTimeMinute: Int)
@@ -36,7 +37,7 @@ class AddDialogFragment : DialogFragment(){
         return activity?.let {
             val builder = AlertDialog.Builder(it)
             val inflater = requireActivity().layoutInflater
-            val view = inflater.inflate(R.layout.dialog_add, null)
+            val view = inflater.inflate(R.layout.dialog_addentery, null)
             val editText = view.findViewById<EditText>(R.id.memory_title)
             val spinner = view.findViewById<Spinner>(R.id.category)
             val datePickerStart = view.findViewById<DatePicker>(R.id.date_picker_start)
@@ -45,6 +46,10 @@ class AddDialogFragment : DialogFragment(){
             val radioGroup = view.findViewById<RadioGroup>(R.id.radio_group)
             val timePickerEnd = view.findViewById<TimePicker>(R.id.time_picker_end)
 
+            val args: Bundle = requireArguments()
+            val categories: ArrayList <String> = args.getStringArrayList("categories") as ArrayList<String>
+            val adapter: ArrayAdapter<String> = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categories)
+            spinner.adapter = adapter
             timePickerStart.setIs24HourView(true)
             timePickerEnd.setIs24HourView(true)
 
@@ -70,7 +75,7 @@ class AddDialogFragment : DialogFragment(){
                         val endTimeHour: Int = timePickerEnd.hour
                         val endTimeMinute: Int = timePickerEnd.minute
 
-                        listener.onDialogPositiveClick(title, category, startDateDay, startDateMonth, startDateYear, startTimeHour, startTimeMinute, frequency, endDateDay, endDateMonth, endDateYear, endTimeHour, endTimeMinute)
+                        listener.onAddEnteryDialogPositiveClick(title, category, startDateDay, startDateMonth, startDateYear, startTimeHour, startTimeMinute, frequency, endDateDay, endDateMonth, endDateYear, endTimeHour, endTimeMinute)
                     })
                 .setNegativeButton(R.string.chancel,
                     DialogInterface.OnClickListener { dialog, id ->

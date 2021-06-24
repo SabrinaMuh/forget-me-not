@@ -3,16 +3,13 @@ package com.appdev.forgetmenot
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.ArrayAdapter
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.ListView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.fragment.app.DialogFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import java.sql.Timestamp
-import java.text.SimpleDateFormat
 import java.time.LocalDateTime
-import java.util.*
 import kotlin.collections.ArrayList
 
 /*
@@ -21,9 +18,10 @@ import kotlin.collections.ArrayList
  * @authers: Sabrina Muhrer, Harald Moitzi
  */
 
-class MainActivity : AppCompatActivity(), AddDialogFragment.NoticeDialogListener{
+class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogListener, AddCategoryDialogFragment.NoticeDialogListener{
     var alMainEntries: ArrayList<MainEntry> = ArrayList<MainEntry>()
     lateinit var adapter: MainEntryAdapter
+    var categories: ArrayList<String> = arrayListOf("Category", "Med", "Sport", "Shopping", "Important", "Others")
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,13 +63,16 @@ class MainActivity : AppCompatActivity(), AddDialogFragment.NoticeDialogListener
 
         val button = findViewById<FloatingActionButton>(R.id.addButton)
         button.setOnClickListener {
-            val dialog = AddDialogFragment()
-            dialog.show(supportFragmentManager, "add")
+            val dialog = AddEnteryDialogFragment()
+            val args = Bundle()
+            args.putStringArrayList("categories", categories)
+            dialog.arguments = args
+            dialog.show(supportFragmentManager, "addEntery")
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun onDialogPositiveClick(title: String, category: String, startDay: Int,
+    override fun onAddEnteryDialogPositiveClick(title: String, category: String, startDay: Int,
                                        startMonth: Int, startYear: Int, startTimeHour: Int, startTimeMinute: Int, frequency: String,
                                        endDay: Int, endMonth: Int, endYear: Int, endTimeHour: Int, endTimeMinute: Int
     ) {
@@ -80,4 +81,24 @@ class MainActivity : AppCompatActivity(), AddDialogFragment.NoticeDialogListener
         Toast.makeText(this, "Entry saved", Toast.LENGTH_SHORT).show()
     }
 
+    override fun onAddCategoryDialogPositiveClick(title: String){
+        categories.add(title)
+        Toast.makeText(this, "Added Category", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId){
+        R.id.add_category->{
+            val dialog = AddCategoryDialogFragment()
+            dialog.show(supportFragmentManager, "addCategorie")
+            true
+        }
+        else -> {
+            super.onOptionsItemSelected(item)
+        }
+    }
 }

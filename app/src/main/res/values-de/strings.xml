@@ -9,4 +9,6 @@
     <string name="daily">Täglich</string>
     <string name="weekly">Wöchentlich</string>
     <string name="monthly">Monatlich</string>
+    <string name="add_category">Kategorie Hinzufügen</string>
+    <string name="category_name">Kategorie Name</string>
 </resources>
