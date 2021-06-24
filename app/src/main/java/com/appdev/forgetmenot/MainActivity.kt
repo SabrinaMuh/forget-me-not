@@ -6,10 +6,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.ArrayAdapter
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.ListView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
-import java.sql.Timestamp
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.time.LocalDateTime
+import kotlin.collections.ArrayList
 
 /*
  * Forget me not
@@ -17,17 +21,17 @@ import java.time.LocalDateTime
  * @authers: Sabrina Muhrer, Harald Moitzi
  */
 
-class MainActivity : AppCompatActivity() {
-    lateinit var dbHelper: DBHelper
+class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogListener, AddCategoryDialogFragment.NoticeDialogListener{
+    lateinit var dbHelper: DBHelper  
+  
+    var alMainEntries: ArrayList<MainEntry> = ArrayList<MainEntry>()
+    lateinit var adapter: MainEntryAdapter
+    var categories: ArrayList<String> = arrayListOf("Category", "Med", "Sport", "Shopping", "Important", "Others")
 
-    //Test
-    //Test2
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        var alMainEntries: ArrayList<MainEntry> = ArrayList<MainEntry>()
 
         var dateTime = LocalDateTime.of(2021, 6, 15, 8, 0, 0, 0)
 
@@ -59,15 +63,48 @@ class MainActivity : AppCompatActivity() {
 
         val lvMain = findViewById<ListView>(R.id.lvMain)
 
-/*        val adapter = MainEntryAdapter(this, alMainEntries)
-        lvMain.adapter = adapter*/
-
-
-        createDB()
-        val cursor: Cursor = dbHelper.getAllEvents()
-        val adapter = EventCursorAdapter(this, cursor)
+        adapter = MainEntryAdapter(this, alMainEntries)
         lvMain.adapter = adapter
-/*        displayAllEvents()*/
+
+        val button = findViewById<FloatingActionButton>(R.id.addButton)
+        button.setOnClickListener {
+            val dialog = AddEnteryDialogFragment()
+            val args = Bundle()
+            args.putStringArrayList("categories", categories)
+            dialog.arguments = args
+            dialog.show(supportFragmentManager, "addEntery")
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onAddEnteryDialogPositiveClick(title: String, category: String, startDay: Int,
+                                       startMonth: Int, startYear: Int, startTimeHour: Int, startTimeMinute: Int, frequency: String,
+                                       endDay: Int, endMonth: Int, endYear: Int, endTimeHour: Int, endTimeMinute: Int
+    ) {
+        alMainEntries.add(MainEntry(title, category, LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute)))
+        adapter.notifyDataSetChanged()
+        Toast.makeText(this, "Entry saved", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onAddCategoryDialogPositiveClick(title: String){
+        categories.add(title)
+        Toast.makeText(this, "Added Category", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId){
+        R.id.add_category->{
+            val dialog = AddCategoryDialogFragment()
+            dialog.show(supportFragmentManager, "addCategorie")
+            true
+        }
+        else -> {
+            super.onOptionsItemSelected(item)
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

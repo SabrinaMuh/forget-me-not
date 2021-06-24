@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ForgetMeNot</string>
+    <string name="title">Titel</string>
+    <string name="start_datetime">Start Zeitpunkt:</string>
+    <string name="end_datetime">Ende Zeitpunkt:</string>
+    <string name="save">Speichern</string>
+    <string name="chancel">Abbruch</string>
+    <string name="daily">Täglich</string>
+    <string name="weekly">Wöchentlich</string>
+    <string name="monthly">Monatlich</string>
+    <string name="add_category">Kategorie Hinzufügen</string>
+    <string name="category_name">Kategorie Name</string>
+</resources>
