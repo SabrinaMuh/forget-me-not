@@ -21,7 +21,7 @@ import kotlin.collections.ArrayList
 class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogListener, AddCategoryDialogFragment.NoticeDialogListener{
     var alMainEntries: ArrayList<MainEntry> = ArrayList<MainEntry>()
     lateinit var adapter: MainEntryAdapter
-    var categories: ArrayList<String> = arrayListOf("Category", "Med", "Sport", "Shopping", "Importand", "Others")
+    var categories: ArrayList<String> = arrayListOf("Category", "Med", "Sport", "Shopping", "Important", "Others")
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
