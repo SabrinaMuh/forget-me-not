@@ -105,7 +105,7 @@ class MainActivity : AppCompatActivity() {
             x--
         } while(x > 0)
 
-        val count = dbHelper.deleteEventById(4)
+        val count = dbHelper.deleteEventById(13)
         Log.d("myDB", "$count deleted")
 
 

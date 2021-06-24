@@ -166,36 +166,42 @@ class DBHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
             // selected event is NOT root --> if event is in the middle, set the prevID of the next event to the prevID of this event, cause this event will be deleted
             // finally delete this event
             else {
-                val newCursor = getEventByPrevId(id)
+                val cursorOfNextEvent = getEventByPrevId(id)
 
-                if(newCursor.count > 0) {
-                    newCursor.moveToFirst()
+                if(cursorOfNextEvent.count > 0) {
+                    cursorOfNextEvent.moveToFirst()
 
-                    val newId = newCursor.getLong(newCursor.getColumnIndex("_id"))
-                    val title = newCursor.getString(newCursor.getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_TITLE))
-                    val note = newCursor.getString(newCursor.getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_NOTE))
-                    val category = newCursor.getString(newCursor.getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_CATEGORY))
-                    val datetime = newCursor.getString(newCursor.getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_DATETIME))
-                    val isRoot = newCursor.getInt(newCursor.getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_IS_ROOT))
-                    val rootID = newCursor.getLong(newCursor.getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_ROOT_ID))
-                    val prevID = cursor.getLong(cursor.getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_PREV_ID))
+                    val IdOfNextEvent = cursorOfNextEvent.getLong(cursorOfNextEvent.getColumnIndex(BaseColumns._ID))
+                    val titleOfNextEvent = cursorOfNextEvent.getString(cursorOfNextEvent.getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_TITLE))
+                    val noteOfNextEvent = cursorOfNextEvent.getString(cursorOfNextEvent.getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_NOTE))
+                    val categoryOfNextEvent = cursorOfNextEvent.getString(cursorOfNextEvent.getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_CATEGORY))
+                    val datetimeOfNextEvent = cursorOfNextEvent.getString(cursorOfNextEvent.getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_DATETIME))
+                    val isRootOfNextEvent = cursorOfNextEvent.getInt(cursorOfNextEvent.getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_IS_ROOT))
+                    val rootIdOfNextEvent = cursorOfNextEvent.getLong(cursorOfNextEvent.getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_ROOT_ID))
+                    //IMPORTANT: set prev_id of next event to the prev_id of the current event, which will be deleted
+                    val prevIdOfNextEvent = cursor.getLong(cursor.getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_PREV_ID))
 
                     val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
-                    val tmpDatetime: LocalDateTime = LocalDateTime.parse(datetime, formatter)
-                    val myIsRoot: Boolean = if(isRoot == 1) true; else false
+                    val newDatetime: LocalDateTime = LocalDateTime.parse(datetimeOfNextEvent, formatter) //convert from String e.g. "2021-06-29T11:00" to LocalDateTime
+                    val newIsRoot: Boolean = if(isRootOfNextEvent == 1) true; else false // convert to Boolean
 
-                    var entry: MainEntry = MainEntry(title, category, tmpDatetime, myIsRoot, rootID, prevID)
+                    var entry: MainEntry = MainEntry(titleOfNextEvent, categoryOfNextEvent, newDatetime, newIsRoot, rootIdOfNextEvent, prevIdOfNextEvent)
 
-                    updateEvent(entry, newId)
+                    updateEvent(entry, IdOfNextEvent)
                 }
 
+                // delete current event
                 count = db.delete(
                     EventObject.Entry.TABLE_NAME,
                     " ${BaseColumns._ID} = ?",
                     arrayOf("$id")
                 )
+
+                cursorOfNextEvent.close()
             }
         }
+
+        cursor.close()
 
         Log.d("myDB", "event with $id deleted: count $count")
         return count
