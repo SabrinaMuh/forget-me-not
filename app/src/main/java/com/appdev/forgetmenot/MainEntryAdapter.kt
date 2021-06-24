@@ -11,11 +11,11 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import java.time.format.DateTimeFormatter
 
-class MainEntryAdapter(context: Context, dataSource:ArrayList<MainEntry>) : BaseAdapter(){
+class MainEntryAdapter(context: Context, dataSource:ArrayList<EventEntry>) : BaseAdapter(){
 
     private val context: Context
     private val layoutInflater: LayoutInflater
-    private val dataSource:ArrayList<MainEntry>
+    private val dataSource:ArrayList<EventEntry>
 
     init {
         this.context = context

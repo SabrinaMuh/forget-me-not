@@ -5,7 +5,6 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.ArrayAdapter
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ListView
@@ -24,7 +23,7 @@ import kotlin.collections.ArrayList
 class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogListener, AddCategoryDialogFragment.NoticeDialogListener{
     lateinit var dbHelper: DBHelper  
   
-    var alMainEntries: ArrayList<MainEntry> = ArrayList<MainEntry>()
+    var alEventEntries: ArrayList<EventEntry> = ArrayList<EventEntry>()
 /*    lateinit var adapter: MainEntryAdapter*/
     private lateinit var adapter: EventCursorAdapter
     var categories: ArrayList<String> = arrayListOf("Category", "Med", "Sport", "Shopping", "Important", "Others")
@@ -91,7 +90,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
     ) {
 /*        alMainEntries.add(MainEntry(title, category, LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute)))*/
 
-        dbHelper.addEvent(MainEntry(title, category, LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute)))
+        dbHelper.addEvent(EventEntry(title, category, LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute)))
 
 /*        adapter.notifyDataSetChanged()*/
 
@@ -129,18 +128,18 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         dbHelper.deleteAllEvents()
 
         dbHelper.addEvent(
-            MainEntry("Fleisch", "Shopping",
+            EventEntry("Fleisch", "Shopping",
                 LocalDateTime.of(2021, 6, 15, 11, 0, 0, 0), isRoot = true, rootID = 1
             )
         )
 
-        dbHelper.addEvent(MainEntry("Cola", "Shopping", LocalDateTime.of(2021, 6, 22, 11, 0, 0, 0), rootID = 1))
+        dbHelper.addEvent(EventEntry("Cola", "Shopping", LocalDateTime.of(2021, 6, 22, 11, 0, 0, 0), rootID = 1))
 
-        dbHelper.addEvent(MainEntry("Zahnpasta", "Shopping", LocalDateTime.of(2021, 6, 29, 11, 0, 0, 0), rootID = 1))
+        dbHelper.addEvent(EventEntry("Zahnpasta", "Shopping", LocalDateTime.of(2021, 6, 29, 11, 0, 0, 0), rootID = 1))
 
         // root-event
         var dateTime: LocalDateTime = LocalDateTime.of(2021, 6, 15, 18, 0, 0, 0)
-        var entry: MainEntry = MainEntry("Laufen", "Sport", dateTime, isRoot = true)
+        var entry: EventEntry = EventEntry("Laufen", "Sport", dateTime, isRoot = true)
         var root_id = dbHelper.addEvent(entry)
 
         //set just created id as root_id of the root entry
@@ -153,7 +152,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         var x = 9
         do {
             dateTime = dateTime.plusDays(1)
-            entry = MainEntry("Laufen", "Sport", dateTime, rootID = root_id, prevID = prevId)
+            entry = EventEntry("Laufen", "Sport", dateTime, rootID = root_id, prevID = prevId)
             prevId = dbHelper.addEvent(entry) // new prevId for next entry
             x--
         } while(x > 0)

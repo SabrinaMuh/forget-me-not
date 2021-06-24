@@ -82,7 +82,7 @@ class DBHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
 
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun addEvent(entry: MainEntry) : Long {
+    fun addEvent(entry: EventEntry) : Long {
         val db = this.writableDatabase
 
         //create content values
@@ -107,7 +107,7 @@ class DBHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
 
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun updateEvent(entry: MainEntry, id: Long) : Int {
+    fun updateEvent(entry: EventEntry, id: Long) : Int {
         val db = this.writableDatabase
         val values = ContentValues().apply {
             put(EventObject.Entry.COLUMN_NAME_TITLE, entry.title)
@@ -185,7 +185,7 @@ class DBHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
                     val newDatetime: LocalDateTime = LocalDateTime.parse(datetimeOfNextEvent, formatter) //convert from String e.g. "2021-06-29T11:00" to LocalDateTime
                     val newIsRoot: Boolean = if(isRootOfNextEvent == 1) true; else false // convert to Boolean
 
-                    var entry: MainEntry = MainEntry(titleOfNextEvent, categoryOfNextEvent, newDatetime, newIsRoot, rootIdOfNextEvent, prevIdOfNextEvent)
+                    var entry: EventEntry = EventEntry(titleOfNextEvent, categoryOfNextEvent, newDatetime, newIsRoot, rootIdOfNextEvent, prevIdOfNextEvent)
 
                     updateEvent(entry, IdOfNextEvent)
                 }

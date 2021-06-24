@@ -6,7 +6,7 @@ import androidx.annotation.RequiresApi
 import java.time.DateTimeException
 import java.time.LocalDateTime
 
-class MainEntry @RequiresApi(Build.VERSION_CODES.O) constructor(title: String = "", category: String = "", dateTime: LocalDateTime = LocalDateTime.MIN, isRoot: Boolean = false, rootID: Long = 0, prevID: Long = 0) {
+class EventEntry @RequiresApi(Build.VERSION_CODES.O) constructor(title: String = "", category: String = "", dateTime: LocalDateTime = LocalDateTime.MIN, isRoot: Boolean = false, rootID: Long = 0, prevID: Long = 0) {
 
     var id: Long
     var title: String
