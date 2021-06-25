@@ -46,8 +46,20 @@ class AddEnteryDialogFragment : DialogFragment(){
             val timePickerEnd = view.findViewById<TimePicker>(R.id.time_picker_end)
 
             val args: Bundle = requireArguments()
-            val categories: ArrayList <String> = args.getStringArrayList("categories") as ArrayList<String>
+            //[SAMU]
+/*            val categories: ArrayList <String> = args.getStringArrayList("categories") as ArrayList<String>
+            val adapter: ArrayAdapter<String> = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categories)*/
+
+            //[HAMO]>
+            val myCategories: ArrayList <CategoryEntry> = args.getSerializable("categories") as ArrayList<CategoryEntry>
+            val categories: ArrayList <String> = ArrayList <String>()
+
+            for(item: CategoryEntry in myCategories) {
+                categories.add(item.name)
+            }
+
             val adapter: ArrayAdapter<String> = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categories)
+            //[HAMO]<
             spinner.adapter = adapter
             timePickerStart.setIs24HourView(true)
             timePickerEnd.setIs24HourView(true)

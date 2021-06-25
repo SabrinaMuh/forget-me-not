@@ -1,10 +1,10 @@
 package com.appdev.forgetmenot
 
 import android.database.Cursor
+import android.graphics.Color
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ListView
@@ -24,7 +24,8 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
     lateinit var dbHelper: DBHelper  
   
     private lateinit var adapter: EventCursorAdapter
-    var categories: ArrayList<String> = arrayListOf("Category", "Med", "Sport", "Shopping", "Important", "Others")
+    /*var categories: ArrayList<String> = arrayListOf("Category", "Med", "Sport", "Shopping", "Important", "Others")*/
+    var categories: ArrayList<CategoryEntry> = ArrayList<CategoryEntry>()
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +33,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         setContentView(R.layout.activity_main)
 
         dbHelper = DBHelper(applicationContext)
+        initCategories(dbHelper)
 
         val lvMain = findViewById<ListView>(R.id.lvMain)
 
@@ -44,7 +46,8 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         button.setOnClickListener {
             val dialog = AddEnteryDialogFragment()
             val args = Bundle()
-            args.putStringArrayList("categories", categories)
+/*            args.putStringArrayList("categories", categories)*/
+            args.putSerializable("categories", categories)
             dialog.arguments = args
             dialog.show(supportFragmentManager, "addEntery")
         }
@@ -103,7 +106,9 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
     }
 
     override fun onAddCategoryDialogPositiveClick(title: String){
-        categories.add(title)
+        /*categories.add(title)*/
+        categories.add((CategoryEntry(title, null)))
+        dbHelper.addCategory(title, "","")
         Toast.makeText(this, "Added Category", Toast.LENGTH_SHORT).show()
     }
 
@@ -120,6 +125,38 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         }
         else -> {
             super.onOptionsItemSelected(item)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun initCategories(dbHelper: DBHelper)
+    {
+        var cursorCategory: Cursor = dbHelper.getAllCategories()
+
+        // init categories
+        if(cursorCategory.count == 0) {
+            dbHelper.addCategory("Important", "#FF4081", "")
+            dbHelper.addCategory("Sport", "#4183D7", "")
+            dbHelper.addCategory("Medical", "#D2527F", "")
+            dbHelper.addCategory("Shopping", "#F4D03F", "")
+            dbHelper.addCategory("Other", "#26A65B", "")
+
+            cursorCategory = dbHelper.getAllCategories()
+        }
+
+        with(cursorCategory) {
+            while(moveToNext()) {
+                val name = getString(getColumnIndex(DBHelper.CategoryObject.Entry.COLUMN_NAME_NAME))
+                val color = getString(getColumnIndex(DBHelper.CategoryObject.Entry.COLUMN_NAME_COLOR))
+                val img = getString(getColumnIndex(DBHelper.CategoryObject.Entry.COLUMN_NAME_IMG))
+
+                if(color.isNullOrEmpty()) {
+                    categories.add(CategoryEntry(name, null, img))
+                }
+                else {
+                    categories.add(CategoryEntry(name, Color.valueOf(Color.parseColor(color)), img))
+                }
+            }
         }
     }
 
