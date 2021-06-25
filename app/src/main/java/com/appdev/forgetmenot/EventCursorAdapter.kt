@@ -26,7 +26,7 @@ class EventCursorAdapter(context: Context, cursor: Cursor): CursorAdapter(contex
         )
 
         private val CATEGORY_LOGOS = hashMapOf(
-            "Sport" to R.drawable.ic_launcher_foreground,
+            "Sport" to R.drawable.logo_sport,
             "Shopping" to R.drawable.ic_launcher_foreground,
             "Medical" to R.drawable.logo_medical,
             "Important" to R.drawable.ic_launcher_foreground,
