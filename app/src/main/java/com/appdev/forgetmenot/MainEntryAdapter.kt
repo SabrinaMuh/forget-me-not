@@ -27,7 +27,7 @@ class MainEntryAdapter(context: Context, dataSource:ArrayList<EventEntry>) : Bas
         private val LABEL_COLORS = hashMapOf(
             "Sport" to R.color.colorSport,
             "Shopping" to R.color.colorShopping,
-            "Med" to R.color.colorMed,
+            "Medical" to R.color.colorMedical,
             "Important" to R.color.colorImportant,
             "Other" to R.color.colorOther
         )

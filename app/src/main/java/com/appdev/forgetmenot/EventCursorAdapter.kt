@@ -1,6 +1,5 @@
 package com.appdev.forgetmenot
 
-import android.R.layout
 import android.content.Context
 import android.database.Cursor
 import android.os.Build
@@ -18,14 +17,32 @@ import java.time.format.DateTimeFormatter
 
 class EventCursorAdapter(context: Context, cursor: Cursor): CursorAdapter(context, cursor, 0) {
     companion object {
-        private val LABEL_COLORS = hashMapOf(
+        private val CATEGORY_COLORS = hashMapOf(
             "Sport" to R.color.colorSport,
             "Shopping" to R.color.colorShopping,
-            "Med" to R.color.colorMed,
+            "Medical" to R.color.colorMedical,
             "Important" to R.color.colorImportant,
             "Other" to R.color.colorOther
         )
+
+        private val CATEGORY_LOGOS = hashMapOf(
+            "Sport" to R.drawable.ic_launcher_foreground,
+            "Shopping" to R.drawable.ic_launcher_foreground,
+            "Medical" to R.drawable.logo_medical,
+            "Important" to R.drawable.ic_launcher_foreground,
+            "Other" to R.drawable.ic_launcher_foreground
+        )
     }
+
+/*    companion object {
+        private val CATEGORY_LOGOS = hashMapOf(
+            "Sport" to R.color.colorSport,
+            "Shopping" to R.color.colorShopping,
+            "Med" to R.drawable.logo_medical,
+            "Important" to R.color.colorImportant,
+            "Other" to R.color.colorOther
+        )
+    }*/
 
     // The newView method is used to inflate a new view and return it,
     // you don't bind any data to the view at this point.
@@ -55,6 +72,12 @@ class EventCursorAdapter(context: Context, cursor: Cursor): CursorAdapter(contex
         val prevID = cursor.getLong(cursor.getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_PREV_ID))
 
         // Populate fields with extracted properties
+
+        // set logo of category
+        imgCat.setImageDrawable(
+            ContextCompat.getDrawable(context, CATEGORY_LOGOS[category] ?: R.color.colorPrimary)
+        )
+
         tvTitle.text = title
         tvCategory.text = category
 
@@ -84,11 +107,11 @@ class EventCursorAdapter(context: Context, cursor: Cursor): CursorAdapter(contex
         tvEdit.typeface = font3
 
         tvCategory.setTextColor(
-            ContextCompat.getColor(context, LABEL_COLORS[category] ?: R.color.colorPrimary)
+            ContextCompat.getColor(context, CATEGORY_COLORS[category] ?: R.color.colorPrimary)
         )
 
         imgCat.setBackgroundColor(
-            ContextCompat.getColor(context, LABEL_COLORS[category] ?: R.color.colorPrimary)
+            ContextCompat.getColor(context, CATEGORY_COLORS[category] ?: R.color.colorPrimary)
         )
 
     }

@@ -150,7 +150,12 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
                 val color = getString(getColumnIndex(DBHelper.CategoryObject.Entry.COLUMN_NAME_COLOR))
                 val img = getString(getColumnIndex(DBHelper.CategoryObject.Entry.COLUMN_NAME_IMG))
 
-                categories.add(CategoryEntry(name, Color.valueOf(Color.parseColor(color)), img))
+                if(color.isNullOrEmpty()) {
+                    categories.add(CategoryEntry(name, null, img))
+                }
+                else {
+                    categories.add(CategoryEntry(name, Color.valueOf(Color.parseColor(color)), img))
+                }
             }
         }
     }
