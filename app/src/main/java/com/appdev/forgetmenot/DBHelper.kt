@@ -44,17 +44,60 @@ class DBHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
         }
     }
 
+    object CategoryObject {
+        object Entry: BaseColumns {
+            const val TABLE_NAME = "Category"
+            const val COLUMN_NAME_NAME = "name"
+            const val COLUMN_NAME_COLOR = "color"
+            const val COLUMN_NAME_IMG = "img"
+
+
+            const val SQL_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS $TABLE_NAME (" +
+                    "${BaseColumns._ID} INTEGER PRIMARY KEY, " +
+                    "$COLUMN_NAME_NAME TEXT, " +
+                    "$COLUMN_NAME_COLOR TEXT, " +
+                    "$COLUMN_NAME_IMG TEXT)"
+
+            const val SQL_DROP_TABLE = "DROP TABLE IF EXISTS $TABLE_NAME"
+        }
+    }
+
 
     override fun onCreate(db: SQLiteDatabase?) {
         Log.d("myDB", "${EventObject.Entry.SQL_CREATE_TABLE}")
+        db?.execSQL(CategoryObject.Entry.SQL_CREATE_TABLE)
         db?.execSQL(EventObject.Entry.SQL_CREATE_TABLE)
     }
 
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
+        db?.execSQL(CategoryObject.Entry.SQL_DROP_TABLE)
         db?.execSQL(EventObject.Entry.SQL_DROP_TABLE)
         onCreate(db)
     }
+
+
+    fun getAllCategories() : Cursor {
+        val db = this.readableDatabase
+        val query = "SELECT * FROM ${CategoryObject.Entry.TABLE_NAME}"
+        Log.d("myDB", "read all events")
+        return db.rawQuery(query, null)
+    }
+
+    fun addCategory(name: String, color: String, img: String) : Long {
+        val db = this.writableDatabase
+
+        //create content values
+        val values = ContentValues().apply {
+            put(CategoryObject.Entry.COLUMN_NAME_NAME, name)
+            put(CategoryObject.Entry.COLUMN_NAME_COLOR, color)
+            put(CategoryObject.Entry.COLUMN_NAME_IMG, img)
+        }
+
+        Log.d("myDB", "category added: ${name}, ${color}, ${img}")
+        return db.insert(CategoryObject.Entry.TABLE_NAME, null, values)
+    }
+
 
 
     fun getAllEvents() : Cursor {
