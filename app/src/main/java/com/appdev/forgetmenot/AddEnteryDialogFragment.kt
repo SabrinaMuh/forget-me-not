@@ -51,6 +51,10 @@ class AddEnteryDialogFragment : DialogFragment(){
             val adapter: ArrayAdapter<String> = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categories)*/
 
             //[HAMO]>
+            var event: EventEntry? = null
+            if(args.containsKey("event")) {
+                event = args.getSerializable("event") as EventEntry
+            }
             val myCategories: ArrayList <CategoryEntry> = args.getSerializable("categories") as ArrayList<CategoryEntry>
             val categories: ArrayList <String> = ArrayList <String>()
 
