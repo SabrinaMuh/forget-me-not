@@ -1,18 +1,22 @@
 package com.appdev.forgetmenot
 
+import android.content.DialogInterface
 import android.database.Cursor
 import android.graphics.Color
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.AdapterView.OnItemLongClickListener
 import android.widget.ListView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.time.LocalDateTime
-import kotlin.collections.ArrayList
+
 
 /*
  * Forget me not
@@ -41,6 +45,44 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         val cursor: Cursor = dbHelper.getAllEvents()
         adapter = EventCursorAdapter(this, cursor)
         lvMain.adapter = adapter
+
+        lvMain.onItemLongClickListener = OnItemLongClickListener { arg0, arg1, pos, id ->
+            /*Toast.makeText(applicationContext, "long clicked", Toast.LENGTH_SHORT).show()*/
+
+            val builder = AlertDialog.Builder(this)
+            builder.setMessage("Please choose your option").setTitle("Edit or Delete Event?")
+
+            builder.setNeutralButton("CANCEL", DialogInterface.OnClickListener { dialog, which ->
+                Log.i("UIAction", "cancel button pressed")
+                Log.i("UIAction", "ID $id") // is the id of the database
+            })
+            builder.setNegativeButton("DELETE", DialogInterface.OnClickListener { dialog, which ->
+                Log.i("UIAction", "delete button pressed")
+
+                dbHelper.deleteEventById(id)
+                val cursor: Cursor = dbHelper.getAllEvents()
+                adapter.changeCursor(cursor)
+            })
+            builder.setPositiveButton("EDIT", DialogInterface.OnClickListener { dialog, which ->
+                Log.i("UIAction", "edit button pressed")
+
+                val dialog = AddEnteryDialogFragment()
+                val args = Bundle()
+
+                val event: EventEntry? = dbHelper.getEventById(id)
+/*            args.putStringArrayList("categories", categories)*/
+
+                args.putSerializable("categories", categories)
+                args.putSerializable("event", event)
+                dialog.arguments = args
+                dialog.show(supportFragmentManager, "addEntery")
+            })
+
+            val dialog = builder.create()
+            dialog.show()
+
+            true
+        }
 
         val button = findViewById<FloatingActionButton>(R.id.addButton)
         button.setOnClickListener {
