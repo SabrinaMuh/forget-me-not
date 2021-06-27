@@ -3,10 +3,13 @@ package com.appdev.forgetmenot
 import android.icu.number.IntegerWidth
 import android.os.Build
 import androidx.annotation.RequiresApi
+import java.io.Serializable
 import java.time.DateTimeException
 import java.time.LocalDateTime
 
-class EventEntry @RequiresApi(Build.VERSION_CODES.O) constructor(title: String = "", category: String = "", dateTime: LocalDateTime = LocalDateTime.MIN, isRoot: Boolean = false, rootID: Long = 0, prevID: Long = 0) {
+class EventEntry
+@RequiresApi(Build.VERSION_CODES.O) constructor(title: String = "", category: String = "", dateTime: LocalDateTime = LocalDateTime.MIN, isRoot: Boolean = false, rootID: Long = 0, prevID: Long = 0)
+    : Serializable {
 
     var id: Long
     var title: String
