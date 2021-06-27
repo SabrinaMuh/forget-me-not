@@ -1,6 +1,7 @@
 package com.appdev.forgetmenot
 
 import android.content.DialogInterface
+import android.content.Intent
 import android.database.Cursor
 import android.graphics.Color
 import android.os.Build
@@ -15,6 +16,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import java.time.LocalDateTime
 
 
@@ -144,14 +146,16 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         val cursor: Cursor = dbHelper.getAllEvents()
         adapter.changeCursor(cursor);
 
-        Toast.makeText(this, "Entry saved", Toast.LENGTH_SHORT).show()
+        Snackbar.make(findViewById(R.id.view), "Entry saved", Snackbar.LENGTH_LONG).show()
+        //Toast.makeText(this, "Entry saved", Toast.LENGTH_SHORT).show()
     }
 
     override fun onAddCategoryDialogPositiveClick(title: String){
         /*categories.add(title)*/
         categories.add((CategoryEntry(title, null)))
         dbHelper.addCategory(title, "","")
-        Toast.makeText(this, "Added Category", Toast.LENGTH_SHORT).show()
+        Snackbar.make(findViewById(R.id.view), "Added Category", Snackbar.LENGTH_LONG).show()
+        //Toast.makeText(this, "Added Category", Toast.LENGTH_SHORT).show()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -160,9 +164,14 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId){
-        R.id.add_category->{
+        /*R.id.add_category->{
             val dialog = AddCategoryDialogFragment()
             dialog.show(supportFragmentManager, "addCategorie")
+            true
+        }*/
+        R.id.info->{
+            val intent = Intent(this, InfoActivity::class.java)
+            startActivity(intent)
             true
         }
         else -> {
