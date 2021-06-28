@@ -12,6 +12,13 @@
     <string name="save">Save</string>
     <string name="chancel">Chancel</string>
 
+    <string name="info">Info</string>
+    <string name="info_text"><b>Info</b>\n
+        This app should help you not to forget any more things. You can create events for daily, weekly or yearly. You can also delete or edit the posts.\n\n
+        <b>Developer</b>\n
+            Harald Moitzi\n
+            Sabrina Muhrer\n
+    </string>
     <string name="add_category">Add Category</string>
 
     <string-array name="category">
