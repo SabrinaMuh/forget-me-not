@@ -11,4 +11,11 @@
     <string name="monthly">Monatlich</string>
     <string name="add_category">Kategorie Hinzufügen</string>
     <string name="category_name">Kategorie Name</string>
+    <string name="info">Info</string>
+    <string name="info_text"><b>Info</b>\n
+        Diese App soll einem helfen keine Sachen mehr zu vergessen. Man kann Ereignisse für täglich, wöchentlich oder jährlich erstellen. Man kann die Beiträge auch löschen oder bearbeiten.\n\n
+        <b>Entwickler</b>\n
+            Harald Moitzi\n
+            Sabrina Muhrer\n
+    </string>
 </resources>
