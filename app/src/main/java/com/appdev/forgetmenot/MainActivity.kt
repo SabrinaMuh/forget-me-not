@@ -113,21 +113,44 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun onAddEnteryDialogPositiveClick(title: String, category: String, startDay: Int,
+    override fun onAddEnteryDialogPositiveClick(eventIdOnEdit: Long, title: String, category: String, startDay: Int,
                                        startMonth: Int, startYear: Int, startTimeHour: Int, startTimeMinute: Int, frequency: String,
                                        endDay: Int, endMonth: Int, endYear: Int, endTimeHour: Int, endTimeMinute: Int
     ) {
+        // add new Event
+        if(eventIdOnEdit.compareTo(0) == 0) {
+            addEvent(eventIdOnEdit, title, category, startDay,
+                startMonth, startYear, startTimeHour, startTimeMinute, frequency,
+                endDay, endMonth, endYear, endTimeHour, endTimeMinute)
+        }
+        // edit existing Event
+        else {
+            editEvent(eventIdOnEdit, title, category, startDay,
+                startMonth, startYear, startTimeHour, startTimeMinute, frequency,
+                endDay, endMonth, endYear, endTimeHour, endTimeMinute)
+        }
+
+        Snackbar.make(findViewById(R.id.view), "Entry saved", Snackbar.LENGTH_LONG).show()
+        //Toast.makeText(this, "Entry saved", Toast.LENGTH_SHORT).show()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun addEvent(eventIdOnEdit: Long, title: String, category: String, startDay: Int,
+                 startMonth: Int, startYear: Int, startTimeHour: Int, startTimeMinute: Int, frequency: String,
+                 endDay: Int, endMonth: Int, endYear: Int, endTimeHour: Int, endTimeMinute: Int) {
+
         //generate number of events and save into db
         var startDateTime: LocalDateTime = LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute)
         val endDateTime: LocalDateTime = LocalDateTime.of(endYear, endMonth, endDay, endTimeHour, endTimeMinute)
 
         // at root event
-        val rootId = dbHelper.addEvent(EventEntry(title, category, LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute), frequency = frequency, isRoot = true))
+        val event: EventEntry = EventEntry(title, category, LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute), frequency = frequency, isRoot = true)
+        val rootId = dbHelper.addEvent(event)
         // set rootid of root to itself --> not needed any more
-        /*
+
         event.rootID = rootId
         dbHelper.updateEvent(event, rootId) // set rootid of root to itself
-        */
+
 
         if(frequency.equals("daily")) {
             startDateTime = startDateTime.plusDays(1)
@@ -159,10 +182,34 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
 
         // NOW: reading out of DB
         val cursor: Cursor = dbHelper.getAllEvents()
-        adapter.changeCursor(cursor);
+        adapter.changeCursor(cursor)
+    }
 
-        Snackbar.make(findViewById(R.id.view), "Entry saved", Snackbar.LENGTH_LONG).show()
-        //Toast.makeText(this, "Entry saved", Toast.LENGTH_SHORT).show()
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun editEvent(eventIdOnEdit: Long, title: String, category: String, startDay: Int,
+                  startMonth: Int, startYear: Int, startTimeHour: Int, startTimeMinute: Int, frequency: String,
+                  endDay: Int, endMonth: Int, endYear: Int, endTimeHour: Int, endTimeMinute: Int) {
+
+        val event: EventEntry? = dbHelper.getEventById(eventIdOnEdit)
+
+        if(event != null) {
+            //delete the whole series and create a new one, instead of updating all events
+            if(event.isRoot) {
+                dbHelper.deleteEventById(event.id)
+                addEvent(eventIdOnEdit, title, category, startDay,
+                    startMonth, startYear, startTimeHour, startTimeMinute, frequency,
+                    endDay, endMonth, endYear, endTimeHour, endTimeMinute)
+            }
+            else {
+                val newEvent: EventEntry = EventEntry(title, category, LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute), frequency = frequency, isRoot = false, event.rootID, event.prevID)
+                dbHelper.updateEvent(newEvent, event.id)
+            }
+        }
+
+        // NOW: reading out of DB
+        val cursor: Cursor = dbHelper.getAllEvents()
+        adapter.changeCursor(cursor)
     }
 
     override fun onAddCategoryDialogPositiveClick(title: String){
