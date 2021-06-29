@@ -30,8 +30,14 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
     lateinit var dbHelper: DBHelper  
   
     private lateinit var adapter: EventCursorAdapter
-    /*var categories: ArrayList<String> = arrayListOf("Category", "Med", "Sport", "Shopping", "Important", "Others")*/
-    var categories: ArrayList<CategoryEntry> = ArrayList<CategoryEntry>()
+
+    /*[SAMU]>: old category version*/
+    var categories: ArrayList<String> = arrayListOf("Medical", "Sport", "Shopping", "Important", "Others")
+    /*[SAMU]<: old category version*/
+
+    /*[HAMO]>: new category version*/
+    /*var categories: ArrayList<CategoryEntry> = ArrayList<CategoryEntry>()*/
+    /*[HAMO]<: new category version*/
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,7 +45,10 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         setContentView(R.layout.activity_main)
 
         dbHelper = DBHelper(applicationContext)
-        initCategories(dbHelper)
+
+        /*[HAMO]>: new category version*/
+        /*initCategories(dbHelper)*/
+        /*[HAMO]<: new category version*/
 
         val lvMain = findViewById<ListView>(R.id.lvMain)
 
@@ -72,9 +81,15 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
                 val args = Bundle()
 
                 val event: EventEntry? = dbHelper.getEventById(id)
-/*            args.putStringArrayList("categories", categories)*/
 
-                args.putSerializable("categories", categories)
+/*[SAMU]>: old category version*/
+                args.putStringArrayList("categories", categories)
+/*[SAMU]<: old category version*/
+
+/*[HAMO]>: new category version*/
+/*                args.putSerializable("categories", categories)*/
+/*[HAMO]<: new category version*/
+
                 args.putSerializable("event", event)
                 dialog.arguments = args
                 dialog.show(supportFragmentManager, "addEntery")
@@ -107,7 +122,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         val endDateTime: LocalDateTime = LocalDateTime.of(endYear, endMonth, endDay, endTimeHour, endTimeMinute)
 
         // at root event
-        val rootId = dbHelper.addEvent(EventEntry(title, category, LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute), isRoot = true))
+        val rootId = dbHelper.addEvent(EventEntry(title, category, LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute), frequency = frequency, isRoot = true))
         // set rootid of root to itself --> not needed any more
         /*
         event.rootID = rootId
@@ -119,7 +134,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
 
             var prevId = rootId
             while(startDateTime.compareTo(endDateTime) <= 0) {
-                prevId = dbHelper.addEvent(EventEntry(title, category, startDateTime, isRoot = false, rootId, prevId))
+                prevId = dbHelper.addEvent(EventEntry(title, category, startDateTime, frequency = frequency, isRoot = false, rootId, prevId))
                 startDateTime = startDateTime.plusDays(1)
             }
         }
@@ -128,7 +143,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
 
             var prevId = rootId
             while(startDateTime.compareTo(endDateTime) <= 0) {
-                prevId = dbHelper.addEvent(EventEntry(title, category, startDateTime, isRoot = false, rootId, prevId))
+                prevId = dbHelper.addEvent(EventEntry(title, category, startDateTime, frequency = frequency, isRoot = false, rootId, prevId))
                 startDateTime = startDateTime.plusWeeks(1)
             }
         }
@@ -137,7 +152,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
 
             var prevId = rootId
             while(startDateTime.compareTo(endDateTime) <= 0) {
-                prevId = dbHelper.addEvent(EventEntry(title, category, startDateTime, isRoot = false, rootId, prevId))
+                prevId = dbHelper.addEvent(EventEntry(title, category, startDateTime, frequency = frequency, isRoot = false, rootId, prevId))
                 startDateTime = startDateTime.plusMonths(1)
             }
         }
@@ -151,9 +166,15 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
     }
 
     override fun onAddCategoryDialogPositiveClick(title: String){
-        /*categories.add(title)*/
-        categories.add((CategoryEntry(title, null)))
-        dbHelper.addCategory(title, "","")
+/*[SAMU]>: old category version*/
+        categories.add(title)
+/*[SAMU]<: old category version*/
+
+        /*[HAMO]>: new category version*/
+/*        categories.add((CategoryEntry(title, null)))
+        dbHelper.addCategory(title, "","")*/
+        /*[HAMO]<: new category version*/
+
         Snackbar.make(findViewById(R.id.view), "Added Category", Snackbar.LENGTH_LONG).show()
         //Toast.makeText(this, "Added Category", Toast.LENGTH_SHORT).show()
     }
@@ -179,7 +200,8 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+
+/*    @RequiresApi(Build.VERSION_CODES.O)
     fun initCategories(dbHelper: DBHelper)
     {
         var cursorCategory: Cursor = dbHelper.getAllCategories()
@@ -209,8 +231,9 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
                 }
             }
         }
-    }
+    }*/
 
+/*[HAMO]>: new category version*/
 /*    @RequiresApi(Build.VERSION_CODES.O)
     fun createDB() {
         dbHelper = DBHelper(applicationContext)
@@ -249,5 +272,6 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         val count = dbHelper.deleteEventById(13)
         Log.d("myDB", "$count deleted")
     }*/
+/*[HAMO]<: new category version*/
 
 }

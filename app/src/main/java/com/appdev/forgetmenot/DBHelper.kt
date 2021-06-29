@@ -26,6 +26,7 @@ class DBHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
             const val COLUMN_NAME_NOTE = "note"
             const val COLUMN_NAME_CATEGORY = "category"
             const val COLUMN_NAME_DATETIME = "datetime"
+            const val COLUMN_NAME_FREQUENCY = "frequency"
             const val COLUMN_NAME_IS_ROOT = "is_root"
             const val COLUMN_NAME_ROOT_ID = "root_id"
             const val COLUMN_NAME_PREV_ID = "prev_id"
@@ -36,6 +37,7 @@ class DBHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
                     "$COLUMN_NAME_NOTE TEXT, " +
                     "$COLUMN_NAME_CATEGORY TEXT, " +
                     "$COLUMN_NAME_DATETIME TEXT, " +
+                    "$COLUMN_NAME_FREQUENCY TEXT, " +
                     "$COLUMN_NAME_IS_ROOT BOOLEAN, " +
                     "$COLUMN_NAME_ROOT_ID INTEGER, " +
                     "$COLUMN_NAME_PREV_ID INTEGER)"
@@ -124,6 +126,7 @@ class DBHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
                 val note = getString(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_NOTE))
                 val category = getString(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_CATEGORY))
                 val dateTime = getString(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_DATETIME))
+                val frequency = getString(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_FREQUENCY))
                 val isRoot = getInt(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_IS_ROOT))
                 val rootId = getLong(getColumnIndex(DBHelper.EventObject.Entry.COLUMN_NAME_ROOT_ID))
                 //IMPORTANT: set prev_id of next event to the prev_id of the current event, which will be deleted
@@ -133,7 +136,7 @@ class DBHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
                 val newDatetime: LocalDateTime = LocalDateTime.parse(dateTime, formatter) //convert from String e.g. "2021-06-29T11:00" to LocalDateTime
                 val newIsRoot: Boolean = if(isRoot == 1) true; else false // convert to Boolean
 
-                var entry: EventEntry = EventEntry(title, category, newDatetime, newIsRoot, rootId, prevId)
+                var entry: EventEntry = EventEntry(title, category, newDatetime, frequency, newIsRoot, rootId, prevId)
                 entry.id = id
 
                 return entry
@@ -174,6 +177,7 @@ class DBHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
             put(EventObject.Entry.COLUMN_NAME_NOTE, entry.note)
             put(EventObject.Entry.COLUMN_NAME_CATEGORY, entry.category)
             put(EventObject.Entry.COLUMN_NAME_DATETIME, entry.dateTime.toString())
+            put(EventObject.Entry.COLUMN_NAME_FREQUENCY, entry.frequency)
             //save as ISO8601 string: YYYY-MM-DD HH:MM:SS.SSS
 /*            put(
                 EventObject.Entry.COLUMN_NAME_DATETIME,
@@ -197,6 +201,7 @@ class DBHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
             put(EventObject.Entry.COLUMN_NAME_NOTE, entry.note)
             put(EventObject.Entry.COLUMN_NAME_CATEGORY, entry.category)
             put(EventObject.Entry.COLUMN_NAME_DATETIME, entry.dateTime.toString())
+            put(EventObject.Entry.COLUMN_NAME_FREQUENCY, entry.frequency)
             //save as ISO8601 string: YYYY-MM-DD HH:MM:SS.SSS
 /*            put(
                 EventObject.Entry.COLUMN_NAME_DATETIME,
@@ -272,4 +277,30 @@ class DBHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
         Log.d("myDB", "event with $id deleted: count $count")
         return count
     }
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getLastEventOfSeries(rootId: Long) : EventEntry? {
+        val db = this.readableDatabase
+        val query = "SELECT ${BaseColumns._ID} FROM ${EventObject.Entry.TABLE_NAME} " +
+/*        val query = "SELECT _id FROM ${EventObject.Entry.TABLE_NAME} " +*/
+                "WHERE ${EventObject.Entry.COLUMN_NAME_ROOT_ID} = ${rootId} " +
+                "AND ${EventObject.Entry.COLUMN_NAME_DATETIME} = " +
+                "(SELECT MAX(${EventObject.Entry.COLUMN_NAME_DATETIME}) FROM EVENT " +
+                "WHERE ${EventObject.Entry.COLUMN_NAME_ROOT_ID} = ${rootId})"
+        Log.d("myDB", "getLatestEventOfSeries with prevId ${rootId}")
+        val cursor: Cursor = db.rawQuery(query, null)
+
+        if(cursor.count > 0) {
+            cursor.moveToFirst()
+
+            with(cursor) {
+                val id = getLong(getColumnIndex(BaseColumns._ID))
+                return getEventById(id)
+            }
+        }
+
+        return null
+    }
+
 }
