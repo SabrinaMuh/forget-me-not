@@ -31,7 +31,7 @@ class AddEnteryDialogFragment : DialogFragment(){
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             val builder = AlertDialog.Builder(it)
@@ -46,27 +46,55 @@ class AddEnteryDialogFragment : DialogFragment(){
             val timePickerEnd = view.findViewById<TimePicker>(R.id.time_picker_end)
 
             val args: Bundle = requireArguments()
-            //[SAMU]
-/*            val categories: ArrayList <String> = args.getStringArrayList("categories") as ArrayList<String>
-            val adapter: ArrayAdapter<String> = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categories)*/
 
-            //[HAMO]>
+/*[SAMU]>: old category version*/
+            val categories: ArrayList <String> = args.getStringArrayList("categories") as ArrayList<String>
+            val adapter: ArrayAdapter<String> = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categories)
+/*[SAMU]<: old category version*/
+
             var event: EventEntry? = null
             if(args.containsKey("event")) {
                 event = args.getSerializable("event") as EventEntry
             }
-            val myCategories: ArrayList <CategoryEntry> = args.getSerializable("categories") as ArrayList<CategoryEntry>
+
+/*[HAMO]>: new category version*/
+/*            val myCategories: ArrayList <CategoryEntry> = args.getSerializable("categories") as ArrayList<CategoryEntry>
             val categories: ArrayList <String> = ArrayList <String>()
 
             for(item: CategoryEntry in myCategories) {
                 categories.add(item.name)
             }
 
-            val adapter: ArrayAdapter<String> = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categories)
-            //[HAMO]<
+            val adapter: ArrayAdapter<String> = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categories)*/
+/*[HAMO]<: new category version*/
+
             spinner.adapter = adapter
             timePickerStart.setIs24HourView(true)
             timePickerEnd.setIs24HourView(true)
+
+            //EDIT --> fill fields of selected Event
+            if(event != null) {
+                editText.setText(event?.title)
+                spinner.setSelection(adapter.getPosition(event?.category))
+
+                when (event?.frequency) {
+                    "daily" -> radioGroup.check(R.id.daily)
+                    "weekly" -> radioGroup.check(R.id.weekly)
+                    "monthly" -> radioGroup.check(R.id.monthly)
+                }
+
+                datePickerStart.init(event?.dateTime?.year!!, event?.dateTime.monthValue, event?.dateTime.dayOfMonth, null)
+                timePickerStart.hour = event?.dateTime.hour
+                timePickerStart.minute = event?.dateTime.minute
+
+                val dbHelper = DBHelper(view.context)
+                val lastEvent = dbHelper.getLastEventOfSeries(event.rootID)
+
+                datePickerEnd.init(lastEvent?.dateTime?.year!!, lastEvent?.dateTime.monthValue, lastEvent?.dateTime.dayOfMonth, null)
+                timePickerEnd.hour = lastEvent?.dateTime.hour
+                timePickerEnd.minute = lastEvent?.dateTime.minute
+            }
+
 
             builder.setView(view)
                 .setPositiveButton(R.string.save,
