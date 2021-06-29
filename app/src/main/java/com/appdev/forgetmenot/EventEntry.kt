@@ -11,7 +11,7 @@ class EventEntry
 @RequiresApi(Build.VERSION_CODES.O) constructor(title: String = "", category: String = "", dateTime: LocalDateTime = LocalDateTime.MIN, frequency: String = "", isRoot: Boolean = false, rootID: Long = 0, prevID: Long = 0)
     : Serializable {
 
-    var id: Long
+    var id: Long = 0
     var title: String
     var note: String
     var category: String
