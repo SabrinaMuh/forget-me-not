@@ -136,7 +136,7 @@ class DBHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
                 val newDatetime: LocalDateTime = LocalDateTime.parse(dateTime, formatter) //convert from String e.g. "2021-06-29T11:00" to LocalDateTime
                 val newIsRoot: Boolean = if(isRoot == 1) true; else false // convert to Boolean
 
-                var entry: EventEntry = EventEntry(title, category, newDatetime, frequency, newIsRoot, rootId, prevId)
+                var entry: EventEntry = EventEntry(title, category, note, newDatetime, frequency, newIsRoot, rootId, prevId)
                 entry.id = id
 
                 return entry

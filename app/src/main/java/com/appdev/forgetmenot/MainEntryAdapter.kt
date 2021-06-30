@@ -63,7 +63,6 @@ class MainEntryAdapter(context: Context, dataSource:ArrayList<EventEntry>) : Bas
 /*        listRowHolder.tvTime.text = dataSource.get(position).dateTime.toString()*/
         dataSource.get(position).dateTime.format(DateTimeFormatter.ofPattern("M/d/y HH:mm:ss"))
             .also { listRowHolder.tvTime.text = it }
-        listRowHolder.tvEdit.text = "Edit"
 
         //formatting
         val font1 = ResourcesCompat.getFont(context, R.font.josefinsans_bold)
@@ -73,7 +72,6 @@ class MainEntryAdapter(context: Context, dataSource:ArrayList<EventEntry>) : Bas
         listRowHolder.tvTitle.typeface = font1
         listRowHolder.tvCategory.typeface = font2
         listRowHolder.tvTime.typeface = font3
-        listRowHolder.tvEdit.typeface = font3
 
         listRowHolder.tvCategory.setTextColor(
             ContextCompat.getColor(context, LABEL_COLORS[dataSource.get(position).category] ?: R.color.colorPrimary)
@@ -92,7 +90,6 @@ private class ListRowHolder(row: View?) {
     public val tvTitle: TextView
     public val tvCategory: TextView
     public val tvTime: TextView
-    public val tvEdit: TextView
 
     public val relativeLayout: RelativeLayout
 
@@ -101,7 +98,6 @@ private class ListRowHolder(row: View?) {
         this.tvTitle = row?.findViewById<TextView>(R.id.main_list_title) as TextView
         this.tvCategory = row?.findViewById<TextView>(R.id.main_list_cat) as TextView
         this.tvTime = row?.findViewById<TextView>(R.id.main_list_time) as TextView
-        this.tvEdit = row?.findViewById<TextView>(R.id.main_list_edit) as TextView
 
         this.relativeLayout = row?.findViewById<RelativeLayout>(R.id.main_list_row_entry) as RelativeLayout
     }

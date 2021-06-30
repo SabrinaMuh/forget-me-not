@@ -16,7 +16,7 @@ class AddEnteryDialogFragment : DialogFragment(){
     internal lateinit var listener: NoticeDialogListener
 
     interface NoticeDialogListener{
-        fun onAddEnteryDialogPositiveClick(evendIdOnEdit: Long, title: String, category: String, startDay: Int, startMonth: Int,
+        fun onAddEnteryDialogPositiveClick(evendIdOnEdit: Long, title: String, category: String, note: String, startDay: Int, startMonth: Int,
                                   startYear: Int, startTimeHour: Int, startTimeMinute: Int,
                                   frequency: String, endDay: Int, endMonth: Int,
                                   endYear: Int, endTimeHour: Int, endTimeMinute: Int)
@@ -39,6 +39,7 @@ class AddEnteryDialogFragment : DialogFragment(){
             val view = inflater.inflate(R.layout.dialog_addentery, null)
             val tvEventIdOnEdit = view.findViewById<TextView>(R.id.event_id_on_edit)
             val editText = view.findViewById<EditText>(R.id.memory_title)
+            val note = view.findViewById<EditText>(R.id.note)
             val spinner = view.findViewById<Spinner>(R.id.category)
             val datePickerStart = view.findViewById<DatePicker>(R.id.date_picker_start)
             val timePickerStart = view.findViewById<TimePicker>(R.id.time_picker_start)
@@ -77,6 +78,7 @@ class AddEnteryDialogFragment : DialogFragment(){
             if(event != null) {
                 tvEventIdOnEdit.setText(event?.id.toString()) // hidden field
                 editText.setText(event?.title)
+                note.setText(event?.note)
                 spinner.setSelection(adapter.getPosition(event?.category))
 
                 when (event?.frequency) {
@@ -85,7 +87,7 @@ class AddEnteryDialogFragment : DialogFragment(){
                     "monthly" -> radioGroup.check(R.id.monthly)
                 }
 
-                datePickerStart.init(event?.dateTime?.year!!, event?.dateTime.monthValue, event?.dateTime.dayOfMonth, null)
+                datePickerStart.init(event?.dateTime?.year!!, event?.dateTime.monthValue-1, event?.dateTime.dayOfMonth, null)
                 timePickerStart.hour = event?.dateTime.hour
                 timePickerStart.minute = event?.dateTime.minute
 
@@ -100,7 +102,7 @@ class AddEnteryDialogFragment : DialogFragment(){
                     lastEvent = event
                 }
 
-                datePickerEnd.init(lastEvent?.dateTime?.year!!, lastEvent?.dateTime.monthValue, lastEvent?.dateTime.dayOfMonth, null)
+                datePickerEnd.init(lastEvent?.dateTime?.year!!, lastEvent?.dateTime.monthValue-1, lastEvent?.dateTime.dayOfMonth, null)
                 timePickerEnd.hour = lastEvent?.dateTime.hour
                 timePickerEnd.minute = lastEvent?.dateTime.minute
             }
@@ -112,12 +114,14 @@ class AddEnteryDialogFragment : DialogFragment(){
                         val eventIdOnEdit: Long = tvEventIdOnEdit.text.toString().toLong()
                         val title: String = editText.text.toString()
                         val category: String = spinner.selectedItem.toString()
+                        val note: String = note.text.toString()
                         val selectedRadioButton: Int = radioGroup.checkedRadioButtonId
                         val radioButton = view.findViewById<RadioButton>(selectedRadioButton)
                         val startDateDay: Int = datePickerStart.dayOfMonth
 
                         /* [HAMO]: at Edit don't calculate + 1 month, cause month is already +1 */
-                        val startDateMonth: Int = if(eventIdOnEdit.compareTo(0) == 0) datePickerStart.month + 1; else  datePickerStart.month;
+/*                        val startDateMonth: Int = if(eventIdOnEdit.compareTo(0) == 0) datePickerStart.month + 1; else  datePickerStart.month;*/
+                        val startDateMonth: Int = datePickerStart.month;
 
                         val startDateYear: Int = datePickerStart.year
                         val startTimeHour: Int = timePickerStart.hour
@@ -134,13 +138,14 @@ class AddEnteryDialogFragment : DialogFragment(){
                         }
                         val endDateDay: Int = datePickerEnd.dayOfMonth
                         /* [HAMO]: at Edit don't calculate + 1 month, cause month is already +1 */
-                        val endDateMonth: Int = if(eventIdOnEdit.compareTo(0) == 0) datePickerEnd.month + 1; else datePickerEnd.month
+/*                        val endDateMonth: Int = if(eventIdOnEdit.compareTo(0) == 0) datePickerEnd.month + 1; else datePickerEnd.month*/
+                        val endDateMonth: Int = datePickerEnd.month
 
                         val endDateYear: Int = datePickerEnd.year
                         val endTimeHour: Int = timePickerEnd.hour
                         val endTimeMinute: Int = timePickerEnd.minute
 
-                        listener.onAddEnteryDialogPositiveClick(eventIdOnEdit, title, category, startDateDay, startDateMonth, startDateYear, startTimeHour, startTimeMinute, frequency, endDateDay, endDateMonth, endDateYear, endTimeHour, endTimeMinute)
+                        listener.onAddEnteryDialogPositiveClick(eventIdOnEdit, title, category, note, startDateDay, startDateMonth, startDateYear, startTimeHour, startTimeMinute, frequency, endDateDay, endDateMonth, endDateYear, endTimeHour, endTimeMinute)
                     })
                 .setNegativeButton(R.string.chancel,
                     DialogInterface.OnClickListener { dialog, id ->

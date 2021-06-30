@@ -8,7 +8,7 @@ import java.time.DateTimeException
 import java.time.LocalDateTime
 
 class EventEntry
-@RequiresApi(Build.VERSION_CODES.O) constructor(title: String = "", category: String = "", dateTime: LocalDateTime = LocalDateTime.MIN, frequency: String = "", isRoot: Boolean = false, rootID: Long = 0, prevID: Long = 0)
+@RequiresApi(Build.VERSION_CODES.O) constructor(title: String = "", category: String = "", note: String = "", dateTime: LocalDateTime = LocalDateTime.MIN, frequency: String = "", isRoot: Boolean = false, rootID: Long = 0, prevID: Long = 0)
     : Serializable {
 
     var id: Long = 0
@@ -24,7 +24,7 @@ class EventEntry
     init {
         this.id = 0
         this.title = title
-        this.note = ""
+        this.note = note
         this.category = category
         this.dateTime = dateTime
         this.frequency = frequency
