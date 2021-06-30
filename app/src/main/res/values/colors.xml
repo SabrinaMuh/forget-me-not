@@ -12,10 +12,11 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorImportant">#FF4081</color>
-<!--    <color name="colorLowCarb">#663399</color>-->
+    <color name="colorJob">#663399</color>
     <color name="colorSport">#4183D7</color>
     <color name="colorMedical">#D2527F</color>
     <color name="colorShopping">#F4D03F</color>
-<!--    <color name="colorElse">#F2784B</color>-->
+    <color name="colorEducation">#F2784B</color>
+    <color name="colorOccasion">#FF000000</color>
     <color name="colorOther">#26A65B</color>
 </resources>

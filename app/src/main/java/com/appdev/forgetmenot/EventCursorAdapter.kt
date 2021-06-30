@@ -22,6 +22,9 @@ class EventCursorAdapter(context: Context, cursor: Cursor): CursorAdapter(contex
             "Shopping" to R.color.colorShopping,
             "Medical" to R.color.colorMedical,
             "Important" to R.color.colorImportant,
+            "Job" to R.color.colorJob,
+            "Education" to R.color.colorEducation,
+            "Occasion" to R.color.colorOccasion,
             "Other" to R.color.colorOther
         )
 
@@ -30,6 +33,9 @@ class EventCursorAdapter(context: Context, cursor: Cursor): CursorAdapter(contex
             "Shopping" to R.drawable.logo_shopping,
             "Medical" to R.drawable.logo_medical,
             "Important" to R.drawable.logo_important,
+            "Job" to R.drawable.logo_work,
+            "Education" to R.drawable.logo_education,
+            "Occasion" to R.drawable.logo_occasion,
             "Other" to R.drawable.logo_others
         )
     }
@@ -58,8 +64,9 @@ class EventCursorAdapter(context: Context, cursor: Cursor): CursorAdapter(contex
         val imgCat = view.findViewById<ImageView>(R.id.main_list_img) as ImageView
         val tvTitle = view.findViewById<TextView>(R.id.main_list_title) as TextView
         val tvCategory = view.findViewById<TextView>(R.id.main_list_cat) as TextView
+        val tvNote = view.findViewById<TextView>(R.id.main_list_note) as TextView
         val tvTime = view.findViewById<TextView>(R.id.main_list_time) as TextView
-        val tvEdit = view.findViewById<TextView>(R.id.main_list_edit) as TextView
+
 
         // Extract properties from cursor
         val id = cursor.getLong(cursor.getColumnIndex("_id"))
@@ -80,6 +87,7 @@ class EventCursorAdapter(context: Context, cursor: Cursor): CursorAdapter(contex
 
         tvTitle.text = title
         tvCategory.text = category
+        tvNote.text = note
 
         // CAST DOES NOT WORK --> EXCEPTION
         // java.time.format.DateTimeParseException: Text '2021-06-15T11:00' could not be parsed at index 10
@@ -94,8 +102,6 @@ class EventCursorAdapter(context: Context, cursor: Cursor): CursorAdapter(contex
 /*        tvTime.text = datetime.replace('T', ' ')*/
 
 
-        tvEdit.text = "Edit"
-
         //formatting
         val font1 = ResourcesCompat.getFont(context, R.font.josefinsans_bold)
         val font2 = ResourcesCompat.getFont(context, R.font.josefinsans_semibolditalic)
@@ -103,8 +109,8 @@ class EventCursorAdapter(context: Context, cursor: Cursor): CursorAdapter(contex
 
         tvTitle.typeface = font1
         tvCategory.typeface = font2
+        tvNote.typeface = font2
         tvTime.typeface = font3
-        tvEdit.typeface = font3
 
         tvCategory.setTextColor(
             ContextCompat.getColor(context, CATEGORY_COLORS[category] ?: R.color.colorPrimary)

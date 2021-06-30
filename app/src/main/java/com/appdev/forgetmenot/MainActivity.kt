@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
     private lateinit var adapter: EventCursorAdapter
 
     /*[SAMU]>: old category version*/
-    var categories: ArrayList<String> = arrayListOf("Medical", "Sport", "Shopping", "Important", "Others")
+    var categories: ArrayList<String> = arrayListOf("Medical", "Sport", "Shopping", "Important", "Job", "Education", "Occasion", "Others")
     /*[SAMU]<: old category version*/
 
     /*[HAMO]>: new category version*/
@@ -113,21 +113,21 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun onAddEnteryDialogPositiveClick(eventIdOnEdit: Long, title: String, category: String, startDay: Int,
+    override fun onAddEnteryDialogPositiveClick(eventIdOnEdit: Long, title: String, category: String, note: String, startDay: Int,
                                        startMonth: Int, startYear: Int, startTimeHour: Int, startTimeMinute: Int, frequency: String,
                                        endDay: Int, endMonth: Int, endYear: Int, endTimeHour: Int, endTimeMinute: Int
     ) {
         // add new Event
         if(eventIdOnEdit.compareTo(0) == 0) {
-            addEvent(eventIdOnEdit, title, category, startDay,
-                startMonth, startYear, startTimeHour, startTimeMinute, frequency,
-                endDay, endMonth, endYear, endTimeHour, endTimeMinute)
+            addEvent(eventIdOnEdit, title, category, note, startDay,
+                startMonth+1, startYear, startTimeHour, startTimeMinute, frequency,
+                endDay, endMonth+1, endYear, endTimeHour, endTimeMinute)
         }
         // edit existing Event
         else {
-            editEvent(eventIdOnEdit, title, category, startDay,
-                startMonth, startYear, startTimeHour, startTimeMinute, frequency,
-                endDay, endMonth, endYear, endTimeHour, endTimeMinute)
+            editEvent(eventIdOnEdit, title, category, note, startDay,
+                startMonth+1, startYear, startTimeHour, startTimeMinute, frequency,
+                endDay, endMonth+1, endYear, endTimeHour, endTimeMinute)
         }
 
         Snackbar.make(findViewById(R.id.view), "Entry saved", Snackbar.LENGTH_LONG).show()
@@ -135,7 +135,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun addEvent(eventIdOnEdit: Long, title: String, category: String, startDay: Int,
+    fun addEvent(eventIdOnEdit: Long, title: String, category: String, note: String, startDay: Int,
                  startMonth: Int, startYear: Int, startTimeHour: Int, startTimeMinute: Int, frequency: String,
                  endDay: Int, endMonth: Int, endYear: Int, endTimeHour: Int, endTimeMinute: Int) {
 
@@ -144,7 +144,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         val endDateTime: LocalDateTime = LocalDateTime.of(endYear, endMonth, endDay, endTimeHour, endTimeMinute)
 
         // at root event
-        val event: EventEntry = EventEntry(title, category, LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute), frequency = frequency, isRoot = true)
+        val event: EventEntry = EventEntry(title, category, note, LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute), frequency = frequency, isRoot = true)
         val rootId = dbHelper.addEvent(event)
         // set rootid of root to itself --> not needed any more
 
@@ -157,7 +157,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
 
             var prevId = rootId
             while(startDateTime.compareTo(endDateTime) <= 0) {
-                prevId = dbHelper.addEvent(EventEntry(title, category, startDateTime, frequency = frequency, isRoot = false, rootId, prevId))
+                prevId = dbHelper.addEvent(EventEntry(title, category, note, startDateTime, frequency = frequency, isRoot = false, rootId, prevId))
                 startDateTime = startDateTime.plusDays(1)
             }
         }
@@ -166,7 +166,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
 
             var prevId = rootId
             while(startDateTime.compareTo(endDateTime) <= 0) {
-                prevId = dbHelper.addEvent(EventEntry(title, category, startDateTime, frequency = frequency, isRoot = false, rootId, prevId))
+                prevId = dbHelper.addEvent(EventEntry(title, category, note, startDateTime, frequency = frequency, isRoot = false, rootId, prevId))
                 startDateTime = startDateTime.plusWeeks(1)
             }
         }
@@ -175,7 +175,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
 
             var prevId = rootId
             while(startDateTime.compareTo(endDateTime) <= 0) {
-                prevId = dbHelper.addEvent(EventEntry(title, category, startDateTime, frequency = frequency, isRoot = false, rootId, prevId))
+                prevId = dbHelper.addEvent(EventEntry(title, category, note, startDateTime, frequency = frequency, isRoot = false, rootId, prevId))
                 startDateTime = startDateTime.plusMonths(1)
             }
         }
@@ -187,7 +187,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
 
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun editEvent(eventIdOnEdit: Long, title: String, category: String, startDay: Int,
+    fun editEvent(eventIdOnEdit: Long, title: String, category: String, note: String, startDay: Int,
                   startMonth: Int, startYear: Int, startTimeHour: Int, startTimeMinute: Int, frequency: String,
                   endDay: Int, endMonth: Int, endYear: Int, endTimeHour: Int, endTimeMinute: Int) {
 
@@ -197,12 +197,12 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
             //delete the whole series and create a new one, instead of updating all events
             if(event.isRoot) {
                 dbHelper.deleteEventById(event.id)
-                addEvent(eventIdOnEdit, title, category, startDay,
+                addEvent(eventIdOnEdit, title, category, note, startDay,
                     startMonth, startYear, startTimeHour, startTimeMinute, frequency,
                     endDay, endMonth, endYear, endTimeHour, endTimeMinute)
             }
             else {
-                val newEvent: EventEntry = EventEntry(title, category, LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute), frequency = frequency, isRoot = false, event.rootID, event.prevID)
+                val newEvent: EventEntry = EventEntry(title, category, note, LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute), frequency = frequency, isRoot = false, event.rootID, event.prevID)
                 dbHelper.updateEvent(newEvent, event.id)
             }
         }
