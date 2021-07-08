@@ -1,14 +1,22 @@
 package com.appdev.forgetmenot
 
+import android.app.AlarmManager
+import android.app.Notification
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.database.Cursor
 import android.graphics.Color
+import android.media.RingtoneManager
 import android.os.Build
 import android.os.Bundle
+import android.os.SystemClock
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.AdapterView.OnItemLongClickListener
 import android.widget.ListView
 import android.widget.Toast
@@ -18,6 +26,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 /*
@@ -30,6 +41,13 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
     lateinit var dbHelper: DBHelper  
   
     private lateinit var adapter: EventCursorAdapter
+    lateinit var notification: Notification
+    private var notificationManager: NotificationManager? = null
+    //TODO: Find right methode to define notificationID
+    val notificationID = "123"
+    val NOTIFICATION_ID: String = "notification-id"
+    val NOTIFICATION: String = "notification"
+    var delay: Long = 0
 
     /*[SAMU]>: old category version*/
     var categories: ArrayList<String> = arrayListOf("Medical", "Sport", "Shopping", "Important", "Job", "Education", "Occasion", "Others")
@@ -111,6 +129,38 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
             dialog.show(supportFragmentManager, "addEntery")
         }
     }
+    //TODO Edit it in case it is needed
+    fun scheduleNotification(notification: Notification, delay: Long) {
+        val notificationIntent = Intent(this, MyNotificationPublisher::class.java)
+        notificationIntent.putExtra(NOTIFICATION_ID, notificationID)
+        notificationIntent.putExtra(NOTIFICATION, notification)
+        val pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val alarmManager: AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        if (alarmManager!=null) {
+            alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + delay, pendingIntent)
+        }
+    }
+    //TODO Edit it in case it is needed
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getMilliseconds(futureDate: Date): Long {
+        val currentldt = LocalDateTime.now(ZoneId.systemDefault())
+        val currentzdt = currentldt.atZone(ZoneId.systemDefault())
+        val currentdate = Date.from(currentzdt.toInstant())
+        return futureDate.time - currentdate.time
+    }
+    //TODO Edit it in case it is needed and change text
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun createNotification(v: View){
+        notification = Notification.Builder(this, "forget-me-not")
+            .setTicker("Example Notification")
+            .setContentTitle("Example Notification")
+            .setContentText("This is an example")
+            .setSmallIcon(R.drawable.ic_stat_name)
+            .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+            .setVibrate(longArrayOf(1000, 1000, 1000, 1000, 1000))
+            .setAutoCancel(true)
+            .build()
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onAddEnteryDialogPositiveClick(eventIdOnEdit: Long, title: String, category: String, note: String, startDay: Int,
@@ -119,19 +169,20 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
     ) {
         // add new Event
         if(eventIdOnEdit.compareTo(0) == 0) {
+            //TODO: Add methods for notification
             addEvent(eventIdOnEdit, title, category, note, startDay,
                 startMonth+1, startYear, startTimeHour, startTimeMinute, frequency,
                 endDay, endMonth+1, endYear, endTimeHour, endTimeMinute)
         }
         // edit existing Event
         else {
+            //TODO: Add methods for notification
             editEvent(eventIdOnEdit, title, category, note, startDay,
                 startMonth+1, startYear, startTimeHour, startTimeMinute, frequency,
                 endDay, endMonth+1, endYear, endTimeHour, endTimeMinute)
         }
 
         Snackbar.make(findViewById(R.id.view), "Entry saved", Snackbar.LENGTH_LONG).show()
-        //Toast.makeText(this, "Entry saved", Toast.LENGTH_SHORT).show()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
