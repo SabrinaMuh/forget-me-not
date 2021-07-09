@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.database.Cursor
-import android.graphics.Color
 import android.media.RingtoneManager
 import android.os.Build
 import android.os.Bundle
@@ -13,10 +12,8 @@ import android.os.SystemClock
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.AdapterView.OnItemLongClickListener
 import android.widget.ListView
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -39,7 +36,6 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
   
     private lateinit var adapter: EventCursorAdapter
 
-    lateinit var currentnotification: Notification
     private var notificationManager: NotificationManager? = null
     var delay: Long = 0
 
@@ -126,7 +122,6 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
     }
 
     //get milliseconds
-    //TODO Edit it in case it is needed
     @RequiresApi(Build.VERSION_CODES.O)
     fun getMilliseconds(futureDate: Date): Long {
         val currentldt = LocalDateTime.now(ZoneId.systemDefault())
@@ -134,11 +129,11 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         val currentdate = Date.from(currentzdt.toInstant())
         return futureDate.time - currentdate.time
     }
+
     //create notification
-    //TODO Edit it in case it is needed and change text
     @RequiresApi(Build.VERSION_CODES.O)
-    fun createNotification(text: String){
-        currentnotification = Notification.Builder(this, "forget-me-not")
+    fun createNotification(text: String): Notification {
+        return Notification.Builder(this, "forget-me-not")
             .setTicker("Forget-Me-Not")
             .setContentTitle("Forget-Me-Not")
             .setContentText(text)
@@ -149,13 +144,13 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
             .build()
     }
     //delete notification
-    fun deleteNotification(notificationId: Int){
+    private fun deleteNotification(notificationId: Int){
         notificationManager?.cancel(notificationId)
         Log.i("NotificationDelete", notificationId.toString())
     }
     //schedule notification
-    //TODO Edit it in case it is needed
-    fun scheduleNotification(notificationId: Int, notification: Notification, delay: Long) {
+    //TODO: Find solution for override notification probleme
+    private fun scheduleNotification(notificationId: Int, notification: Notification, delay: Long) {
         val notificationIntent = Intent(this, MyNotificationPublisher::class.java)
         notificationIntent.putExtra(MyNotificationPublisher().NOTIFICATION_ID, notificationId)
         notificationIntent.putExtra(MyNotificationPublisher().NOTIFICATION, notification)
@@ -176,14 +171,12 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
     ) {
         // add new Event
         if(eventIdOnEdit.compareTo(0) == 0) {
-            //TODO: Add methods for notification
             addEvent(eventIdOnEdit, title, category, note, startDay,
                 startMonth+1, startYear, startTimeHour, startTimeMinute, frequency,
                 endDay, endMonth+1, endYear, endTimeHour, endTimeMinute)
         }
         // edit existing Event
         else {
-            //TODO: Add methods for notification
             editEvent(eventIdOnEdit, title, category, note, startDay,
                 startMonth+1, startYear, startTimeHour, startTimeMinute, frequency,
                 endDay, endMonth+1, endYear, endTimeHour, endTimeMinute)
@@ -207,11 +200,10 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         // set rootid of root to itself --> not needed any more
 
         //SAMU
-        createNotification(title)
         var zdt = startDateTime.atZone(ZoneId.systemDefault())
         var startDate = Date.from(zdt.toInstant())
         delay = getMilliseconds(startDate)
-        scheduleNotification(rootId.toInt(), currentnotification, delay)
+        scheduleNotification(rootId.toInt(), createNotification(title), delay)
 
         event.rootID = rootId
         dbHelper.updateEvent(event, rootId) // set rootid of root to itself
@@ -225,11 +217,10 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
                 prevId = dbHelper.addEvent(EventEntry(title, category, note, startDateTime, frequency = frequency, isRoot = false, rootId, prevId))
 
                 //SAMU
-                createNotification(title)
                 zdt = startDateTime.atZone(ZoneId.systemDefault())
                 startDate = Date.from(zdt.toInstant())
                 delay = getMilliseconds(startDate)
-                scheduleNotification(prevId.toInt(), currentnotification, delay)
+                scheduleNotification(prevId.toInt(), createNotification(title), delay)
 
                 startDateTime = startDateTime.plusDays(1)
             }
@@ -242,11 +233,10 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
                 prevId = dbHelper.addEvent(EventEntry(title, category, note, startDateTime, frequency = frequency, isRoot = false, rootId, prevId))
 
                 //SAMU
-                createNotification(title)
                 zdt = startDateTime.atZone(ZoneId.systemDefault())
                 startDate = Date.from(zdt.toInstant())
                 delay = getMilliseconds(startDate)
-                scheduleNotification(prevId.toInt(), currentnotification, delay)
+                scheduleNotification(prevId.toInt(), createNotification(title), delay)
 
                 startDateTime = startDateTime.plusWeeks(1)
             }
@@ -259,11 +249,10 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
                 prevId = dbHelper.addEvent(EventEntry(title, category, note, startDateTime, frequency = frequency, isRoot = false, rootId, prevId))
 
                 //SAMU
-                createNotification(title)
                 zdt = startDateTime.atZone(ZoneId.systemDefault())
                 startDate = Date.from(zdt.toInstant())
                 delay = getMilliseconds(startDate)
-                scheduleNotification(prevId.toInt(), currentnotification, delay)
+                scheduleNotification(prevId.toInt(), createNotification(title), delay)
 
                 startDateTime = startDateTime.plusMonths(1)
             }
@@ -297,11 +286,10 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
                 val newEvent: EventEntry = EventEntry(title, category, note, startDateTime, frequency = frequency, isRoot = false, event.rootID, event.prevID)
 
                 //SAMU
-                createNotification(title)
                 val zdt = startDateTime.atZone(ZoneId.systemDefault())
                 val startDate = Date.from(zdt.toInstant())
                 delay = getMilliseconds(startDate)
-                scheduleNotification(eventIdOnEdit.toInt(), currentnotification, delay)
+                scheduleNotification(eventIdOnEdit.toInt(), createNotification(title), delay)
                 dbHelper.updateEvent(newEvent, event.id)
             }
         }
