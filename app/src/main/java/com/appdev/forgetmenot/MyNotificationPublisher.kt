@@ -12,19 +12,20 @@ import androidx.annotation.RequiresApi
 class MyNotificationPublisher: BroadcastReceiver() {
     val NOTIFICATION_ID: String = "notification-id"
     val NOTIFICATION: String = "notification"
+    var notificationManager: NotificationManager? = null
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onReceive(context: Context, intent: Intent) {
-        val notificationManager: NotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notification = intent.getParcelableExtra<Notification>(NOTIFICATION)
 
         val importance = NotificationManager.IMPORTANCE_HIGH
-        val notificationChannel = NotificationChannel("forget-me-not", "Forget-Me-Not_Alarm", importance)
+        val notificationChannel = NotificationChannel("test", "Test_Alarm", importance)
         if (notificationManager!=null)
-            notificationManager.createNotificationChannel(notificationChannel)
+            notificationManager!!.createNotificationChannel(notificationChannel)
 
         val id: Int = intent.getIntExtra(NOTIFICATION_ID, 0)
         if (notificationManager!=null)
-            notificationManager.notify(id, notification)
+            notificationManager!!.notify(id, notification)
     }
 }

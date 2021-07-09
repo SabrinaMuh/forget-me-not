@@ -23,6 +23,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.example.notificationexample.MyNotificationPublisher
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import java.time.LocalDateTime
@@ -41,12 +42,9 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
     lateinit var dbHelper: DBHelper  
   
     private lateinit var adapter: EventCursorAdapter
-    lateinit var notification: Notification
+
+    lateinit var currentnotification: Notification
     private var notificationManager: NotificationManager? = null
-    //TODO: Find right methode to define notificationID
-    val notificationID = "123"
-    val NOTIFICATION_ID: String = "notification-id"
-    val NOTIFICATION: String = "notification"
     var delay: Long = 0
 
     /*[SAMU]>: old category version*/
@@ -91,6 +89,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
                 dbHelper.deleteEventById(id)
                 val cursor: Cursor = dbHelper.getAllEvents()
                 adapter.changeCursor(cursor)
+                deleteNotification(id.toInt())
             })
             builder.setPositiveButton("EDIT", DialogInterface.OnClickListener { dialog, which ->
                 Log.i("UIAction", "edit button pressed")
@@ -129,17 +128,8 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
             dialog.show(supportFragmentManager, "addEntery")
         }
     }
-    //TODO Edit it in case it is needed
-    fun scheduleNotification(notification: Notification, delay: Long) {
-        val notificationIntent = Intent(this, MyNotificationPublisher::class.java)
-        notificationIntent.putExtra(NOTIFICATION_ID, notificationID)
-        notificationIntent.putExtra(NOTIFICATION, notification)
-        val pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-        val alarmManager: AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        if (alarmManager!=null) {
-            alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + delay, pendingIntent)
-        }
-    }
+
+    //get milliseconds
     //TODO Edit it in case it is needed
     @RequiresApi(Build.VERSION_CODES.O)
     fun getMilliseconds(futureDate: Date): Long {
@@ -148,18 +138,39 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         val currentdate = Date.from(currentzdt.toInstant())
         return futureDate.time - currentdate.time
     }
+    //create notification
     //TODO Edit it in case it is needed and change text
     @RequiresApi(Build.VERSION_CODES.O)
-    fun createNotification(v: View){
-        notification = Notification.Builder(this, "forget-me-not")
-            .setTicker("Example Notification")
-            .setContentTitle("Example Notification")
-            .setContentText("This is an example")
+    fun createNotification(text: String){
+        currentnotification = Notification.Builder(this, "forget-me-not")
+            .setTicker("Forget-Me-Not")
+            .setContentTitle("Forget-Me-Not")
+            .setContentText(text)
             .setSmallIcon(R.drawable.ic_stat_name)
             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
             .setVibrate(longArrayOf(1000, 1000, 1000, 1000, 1000))
             .setAutoCancel(true)
             .build()
+    }
+    //delete notification
+    fun deleteNotification(notificationId: Int){
+        notificationManager?.cancel(notificationId)
+        Log.i("NotificationDelete", notificationId.toString())
+    }
+    //schedule notification
+    //TODO Edit it in case it is needed
+    fun scheduleNotification(notificationId: Int, notification: Notification, delay: Long) {
+        val notificationIntent = Intent(this, MyNotificationPublisher::class.java)
+        notificationIntent.putExtra(MyNotificationPublisher().NOTIFICATION_ID, notificationId)
+        notificationIntent.putExtra(MyNotificationPublisher().NOTIFICATION, notification)
+
+        notificationManager = MyNotificationPublisher().notificationManager
+        val pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val alarmManager: AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val triggerAtMillis: Long = SystemClock.elapsedRealtime() + delay
+        if (alarmManager!=null) {
+            alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtMillis, pendingIntent)
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -199,6 +210,13 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         val rootId = dbHelper.addEvent(event)
         // set rootid of root to itself --> not needed any more
 
+        //SAMU
+        createNotification(title)
+        var zdt = startDateTime.atZone(ZoneId.systemDefault())
+        var startDate = Date.from(zdt.toInstant())
+        delay = getMilliseconds(startDate)
+        scheduleNotification(rootId.toInt(), currentnotification, delay)
+
         event.rootID = rootId
         dbHelper.updateEvent(event, rootId) // set rootid of root to itself
 
@@ -209,6 +227,14 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
             var prevId = rootId
             while(startDateTime.compareTo(endDateTime) <= 0) {
                 prevId = dbHelper.addEvent(EventEntry(title, category, note, startDateTime, frequency = frequency, isRoot = false, rootId, prevId))
+
+                //SAMU
+                createNotification(title)
+                zdt = startDateTime.atZone(ZoneId.systemDefault())
+                startDate = Date.from(zdt.toInstant())
+                delay = getMilliseconds(startDate)
+                scheduleNotification(prevId.toInt(), currentnotification, delay)
+
                 startDateTime = startDateTime.plusDays(1)
             }
         }
@@ -218,6 +244,14 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
             var prevId = rootId
             while(startDateTime.compareTo(endDateTime) <= 0) {
                 prevId = dbHelper.addEvent(EventEntry(title, category, note, startDateTime, frequency = frequency, isRoot = false, rootId, prevId))
+
+                //SAMU
+                createNotification(title)
+                zdt = startDateTime.atZone(ZoneId.systemDefault())
+                startDate = Date.from(zdt.toInstant())
+                delay = getMilliseconds(startDate)
+                scheduleNotification(prevId.toInt(), currentnotification, delay)
+
                 startDateTime = startDateTime.plusWeeks(1)
             }
         }
@@ -227,6 +261,14 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
             var prevId = rootId
             while(startDateTime.compareTo(endDateTime) <= 0) {
                 prevId = dbHelper.addEvent(EventEntry(title, category, note, startDateTime, frequency = frequency, isRoot = false, rootId, prevId))
+
+                //SAMU
+                createNotification(title)
+                zdt = startDateTime.atZone(ZoneId.systemDefault())
+                startDate = Date.from(zdt.toInstant())
+                delay = getMilliseconds(startDate)
+                scheduleNotification(prevId.toInt(), currentnotification, delay)
+
                 startDateTime = startDateTime.plusMonths(1)
             }
         }
@@ -253,7 +295,17 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
                     endDay, endMonth, endYear, endTimeHour, endTimeMinute)
             }
             else {
-                val newEvent: EventEntry = EventEntry(title, category, note, LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute), frequency = frequency, isRoot = false, event.rootID, event.prevID)
+                //SAMU
+                val startDateTime = LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute)
+
+                val newEvent: EventEntry = EventEntry(title, category, note, startDateTime, frequency = frequency, isRoot = false, event.rootID, event.prevID)
+
+                //SAMU
+                createNotification(title)
+                val zdt = startDateTime.atZone(ZoneId.systemDefault())
+                val startDate = Date.from(zdt.toInstant())
+                delay = getMilliseconds(startDate)
+                scheduleNotification(eventIdOnEdit.toInt(), currentnotification, delay)
                 dbHelper.updateEvent(newEvent, event.id)
             }
         }
