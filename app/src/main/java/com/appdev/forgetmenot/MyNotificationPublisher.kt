@@ -20,7 +20,9 @@ class MyNotificationPublisher: BroadcastReceiver() {
         val notification = intent.getParcelableExtra<Notification>(NOTIFICATION)
 
         val importance = NotificationManager.IMPORTANCE_HIGH
-        val notificationChannel = NotificationChannel("test", "Test_Alarm", importance)
+        //NOTE TO ME: Check this everytime before you use the app
+        //NOTE TO ME: Don't change it without to change it also by the notification
+        val notificationChannel = NotificationChannel("forget-me-not", "Forget-Me-Not_Alarm", importance)
         if (notificationManager!=null)
             notificationManager!!.createNotificationChannel(notificationChannel)
 

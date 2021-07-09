@@ -1,9 +1,6 @@
 package com.appdev.forgetmenot
 
-import android.app.AlarmManager
-import android.app.Notification
-import android.app.NotificationManager
-import android.app.PendingIntent
+import android.app.*
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -23,7 +20,6 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.example.notificationexample.MyNotificationPublisher
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import java.time.LocalDateTime
