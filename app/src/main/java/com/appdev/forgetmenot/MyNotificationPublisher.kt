@@ -42,7 +42,7 @@ class MyNotificationPublisher: BroadcastReceiver() {
             .setTicker("Forget-Me-Not")
             .setContentTitle("Forget-Me-Not")
             .setContentText(text)
-            .setSmallIcon(R.drawable.ic_stat_name)
+            .setSmallIcon(R.drawable.notification_icon)
             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
             .setVibrate(longArrayOf(1000, 1000, 1000, 1000, 1000))
             .setAutoCancel(true)
