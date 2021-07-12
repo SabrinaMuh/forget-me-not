@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.database.Cursor
-import android.media.RingtoneManager
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
@@ -36,7 +35,6 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
   
     private lateinit var adapter: EventCursorAdapter
 
-    private var notificationManager: NotificationManager? = null
     var delay: Long = 0
 
     /*[SAMU]>: old category version*/
@@ -78,10 +76,10 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
             builder.setNegativeButton("DELETE", DialogInterface.OnClickListener { dialog, which ->
                 Log.i("UIAction", "delete button pressed")
 
+                cancelNotification(dbHelper.getEventById(id)?.title, id.toInt())
                 dbHelper.deleteEventById(id)
                 val cursor: Cursor = dbHelper.getAllEvents()
                 adapter.changeCursor(cursor)
-                //cancelNotification(id.toInt())
             })
             builder.setPositiveButton("EDIT", DialogInterface.OnClickListener { dialog, which ->
                 Log.i("UIAction", "edit button pressed")
@@ -130,32 +128,24 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         return futureDate.time - currentdate.time
     }
 
-    //create notification
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun createNotification(text: String): Notification {
-        return Notification.Builder(this, "forget-me-not")
-            .setTicker("Forget-Me-Not")
-            .setContentTitle("Forget-Me-Not")
-            .setContentText(text)
-            .setSmallIcon(R.drawable.ic_stat_name)
-            .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-            .setVibrate(longArrayOf(1000, 1000, 1000, 1000, 1000))
-            .setAutoCancel(true)
-            .build()
-    }
     //delete notification
-    /*private fun cancelNotification(context: Context, text: String){
-        notificationManager?.cancel(notificationId)
-        Log.i("NotificationDelete", notificationId.toString())
-    }*/
-    //schedule notification
-    @RequiresApi(Build.VERSION_CODES.M)
-    private fun scheduleNotification(notificationId: Int, notification: Notification, delay: Long) {
+    private fun cancelNotification(text: String?, notificationId: Int){
         val notificationIntent = Intent(this, MyNotificationPublisher::class.java)
         notificationIntent.putExtra(MyNotificationPublisher().NOTIFICATION_ID, notificationId)
-        notificationIntent.putExtra(MyNotificationPublisher().NOTIFICATION, notification)
+        notificationIntent.putExtra(MyNotificationPublisher().TEXT, text)
 
-        notificationManager = MyNotificationPublisher().notificationManager
+        val pendingIntent = PendingIntent.getBroadcast(this, notificationId, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+        val alarmManager: AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.cancel(pendingIntent)
+    }
+    //schedule notification
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun scheduleNotification(notificationId: Int, text: String, delay: Long) {
+        val notificationIntent = Intent(this, MyNotificationPublisher::class.java)
+        notificationIntent.putExtra(MyNotificationPublisher().NOTIFICATION_ID, notificationId)
+        notificationIntent.putExtra(MyNotificationPublisher().TEXT, text)
+
         //notificationid needs to be unique by pendingIntent
         val pendingIntent = PendingIntent.getBroadcast(this, notificationId, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
         val alarmManager: AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -204,7 +194,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         var zdt = startDateTime.atZone(ZoneId.systemDefault())
         var startDate = Date.from(zdt.toInstant())
         delay = getMilliseconds(startDate)
-        scheduleNotification(rootId.toInt(), createNotification(title), delay)
+        scheduleNotification(rootId.toInt(), title, delay)
 
         event.rootID = rootId
         dbHelper.updateEvent(event, rootId) // set rootid of root to itself
@@ -221,7 +211,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
                 zdt = startDateTime.atZone(ZoneId.systemDefault())
                 startDate = Date.from(zdt.toInstant())
                 delay = getMilliseconds(startDate)
-                scheduleNotification(prevId.toInt(), createNotification(title), delay)
+                scheduleNotification(prevId.toInt(), title, delay)
 
                 startDateTime = startDateTime.plusDays(1)
             }
@@ -237,7 +227,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
                 zdt = startDateTime.atZone(ZoneId.systemDefault())
                 startDate = Date.from(zdt.toInstant())
                 delay = getMilliseconds(startDate)
-                scheduleNotification(prevId.toInt(), createNotification(title), delay)
+                scheduleNotification(prevId.toInt(), title, delay)
 
                 startDateTime = startDateTime.plusWeeks(1)
             }
@@ -253,7 +243,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
                 zdt = startDateTime.atZone(ZoneId.systemDefault())
                 startDate = Date.from(zdt.toInstant())
                 delay = getMilliseconds(startDate)
-                scheduleNotification(prevId.toInt(), createNotification(title), delay)
+                scheduleNotification(prevId.toInt(), title, delay)
 
                 startDateTime = startDateTime.plusMonths(1)
             }
@@ -290,7 +280,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
                 val zdt = startDateTime.atZone(ZoneId.systemDefault())
                 val startDate = Date.from(zdt.toInstant())
                 delay = getMilliseconds(startDate)
-                scheduleNotification(eventIdOnEdit.toInt(), createNotification(title), delay)
+                scheduleNotification(eventIdOnEdit.toInt(), title, delay)
                 dbHelper.updateEvent(newEvent, event.id)
             }
         }

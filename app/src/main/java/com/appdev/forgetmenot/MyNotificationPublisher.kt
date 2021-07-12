@@ -6,18 +6,21 @@ import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.media.RingtoneManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 
 class MyNotificationPublisher: BroadcastReceiver() {
     val NOTIFICATION_ID: String = "notification-id"
-    val NOTIFICATION: String = "notification"
+    val TEXT: String = "text"
     var notificationManager: NotificationManager? = null
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onReceive(context: Context, intent: Intent) {
         notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val notification = intent.getParcelableExtra<Notification>(NOTIFICATION)
+        val text = intent.getStringExtra(TEXT)
+
+        val notification = createNotification(context, text)
 
         val importance = NotificationManager.IMPORTANCE_HIGH
         //NOTE TO ME: Check this everytime before you use the app
@@ -30,5 +33,19 @@ class MyNotificationPublisher: BroadcastReceiver() {
         val id: Int = intent.getIntExtra(NOTIFICATION_ID, 0)
         if (notificationManager!=null)
             notificationManager!!.notify(id, notification)
+    }
+
+    //create notification
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun createNotification(context: Context, text: String?): Notification {
+        return Notification.Builder(context, "forget-me-not")
+            .setTicker("Forget-Me-Not")
+            .setContentTitle("Forget-Me-Not")
+            .setContentText(text)
+            .setSmallIcon(R.drawable.ic_stat_name)
+            .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+            .setVibrate(longArrayOf(1000, 1000, 1000, 1000, 1000))
+            .setAutoCancel(true)
+            .build()
     }
 }
