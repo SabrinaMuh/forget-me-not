@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
                 dbHelper.deleteEventById(id)
                 val cursor: Cursor = dbHelper.getAllEvents()
                 adapter.changeCursor(cursor)
-                deleteNotification(id.toInt())
+                //cancelNotification(id.toInt())
             })
             builder.setPositiveButton("EDIT", DialogInterface.OnClickListener { dialog, which ->
                 Log.i("UIAction", "edit button pressed")
@@ -144,23 +144,24 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
             .build()
     }
     //delete notification
-    private fun deleteNotification(notificationId: Int){
+    /*private fun cancelNotification(context: Context, text: String){
         notificationManager?.cancel(notificationId)
         Log.i("NotificationDelete", notificationId.toString())
-    }
+    }*/
     //schedule notification
-    //TODO: Find solution for override notification probleme
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun scheduleNotification(notificationId: Int, notification: Notification, delay: Long) {
         val notificationIntent = Intent(this, MyNotificationPublisher::class.java)
         notificationIntent.putExtra(MyNotificationPublisher().NOTIFICATION_ID, notificationId)
         notificationIntent.putExtra(MyNotificationPublisher().NOTIFICATION, notification)
 
         notificationManager = MyNotificationPublisher().notificationManager
-        val pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        //notificationid needs to be unique by pendingIntent
+        val pendingIntent = PendingIntent.getBroadcast(this, notificationId, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
         val alarmManager: AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val triggerAtMillis: Long = SystemClock.elapsedRealtime() + delay
         if (alarmManager!=null) {
-            alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtMillis, pendingIntent)
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtMillis, pendingIntent)
         }
     }
 

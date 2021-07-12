@@ -26,6 +26,7 @@ class MyNotificationPublisher: BroadcastReceiver() {
         if (notificationManager!=null)
             notificationManager!!.createNotificationChannel(notificationChannel)
 
+        //notificationid needs to be unique by notificationmanager
         val id: Int = intent.getIntExtra(NOTIFICATION_ID, 0)
         if (notificationManager!=null)
             notificationManager!!.notify(id, notification)
