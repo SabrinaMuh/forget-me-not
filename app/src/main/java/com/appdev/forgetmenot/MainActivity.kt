@@ -1,23 +1,27 @@
 package com.appdev.forgetmenot
 
+import android.app.*
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.database.Cursor
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.os.SystemClock
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.AdapterView.OnItemLongClickListener
 import android.widget.ListView
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 /*
@@ -30,6 +34,8 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
     lateinit var dbHelper: DBHelper  
   
     private lateinit var adapter: EventCursorAdapter
+
+    var delay: Long = 0
 
     /*[SAMU]>: old category version*/
     var categories: ArrayList<String> = arrayListOf("Medical", "Sport", "Shopping", "Important", "Job", "Education", "Occasion", "Others")
@@ -70,6 +76,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
             builder.setNegativeButton("DELETE", DialogInterface.OnClickListener { dialog, which ->
                 Log.i("UIAction", "delete button pressed")
 
+                cancelNotification(dbHelper.getEventById(id)?.title, id.toInt())
                 dbHelper.deleteEventById(id)
                 val cursor: Cursor = dbHelper.getAllEvents()
                 adapter.changeCursor(cursor)
@@ -112,6 +119,42 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         }
     }
 
+    //get milliseconds
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getMilliseconds(futureDate: Date): Long {
+        val currentldt = LocalDateTime.now(ZoneId.systemDefault())
+        val currentzdt = currentldt.atZone(ZoneId.systemDefault())
+        val currentdate = Date.from(currentzdt.toInstant())
+        return futureDate.time - currentdate.time
+    }
+
+    //delete notification
+    private fun cancelNotification(text: String?, notificationId: Int){
+        val notificationIntent = Intent(this, MyNotificationPublisher::class.java)
+        notificationIntent.putExtra(MyNotificationPublisher().NOTIFICATION_ID, notificationId)
+        notificationIntent.putExtra(MyNotificationPublisher().TEXT, text)
+
+        val pendingIntent = PendingIntent.getBroadcast(this, notificationId, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+        val alarmManager: AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.cancel(pendingIntent)
+    }
+    //schedule notification
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun scheduleNotification(notificationId: Int, text: String, delay: Long) {
+        val notificationIntent = Intent(this, MyNotificationPublisher::class.java)
+        notificationIntent.putExtra(MyNotificationPublisher().NOTIFICATION_ID, notificationId)
+        notificationIntent.putExtra(MyNotificationPublisher().TEXT, text)
+
+        //notificationid needs to be unique by pendingIntent
+        val pendingIntent = PendingIntent.getBroadcast(this, notificationId, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val alarmManager: AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val triggerAtMillis: Long = SystemClock.elapsedRealtime() + delay
+        if (alarmManager!=null) {
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtMillis, pendingIntent)
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onAddEnteryDialogPositiveClick(eventIdOnEdit: Long, title: String, category: String, note: String, startDay: Int,
                                        startMonth: Int, startYear: Int, startTimeHour: Int, startTimeMinute: Int, frequency: String,
@@ -131,7 +174,6 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         }
 
         Snackbar.make(findViewById(R.id.view), "Entry saved", Snackbar.LENGTH_LONG).show()
-        //Toast.makeText(this, "Entry saved", Toast.LENGTH_SHORT).show()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -148,6 +190,12 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         val rootId = dbHelper.addEvent(event)
         // set rootid of root to itself --> not needed any more
 
+        //SAMU
+        var zdt = startDateTime.atZone(ZoneId.systemDefault())
+        var startDate = Date.from(zdt.toInstant())
+        delay = getMilliseconds(startDate)
+        scheduleNotification(rootId.toInt(), title, delay)
+
         event.rootID = rootId
         dbHelper.updateEvent(event, rootId) // set rootid of root to itself
 
@@ -158,6 +206,13 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
             var prevId = rootId
             while(startDateTime.compareTo(endDateTime) <= 0) {
                 prevId = dbHelper.addEvent(EventEntry(title, category, note, startDateTime, frequency = frequency, isRoot = false, rootId, prevId))
+
+                //SAMU
+                zdt = startDateTime.atZone(ZoneId.systemDefault())
+                startDate = Date.from(zdt.toInstant())
+                delay = getMilliseconds(startDate)
+                scheduleNotification(prevId.toInt(), title, delay)
+
                 startDateTime = startDateTime.plusDays(1)
             }
         }
@@ -167,6 +222,13 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
             var prevId = rootId
             while(startDateTime.compareTo(endDateTime) <= 0) {
                 prevId = dbHelper.addEvent(EventEntry(title, category, note, startDateTime, frequency = frequency, isRoot = false, rootId, prevId))
+
+                //SAMU
+                zdt = startDateTime.atZone(ZoneId.systemDefault())
+                startDate = Date.from(zdt.toInstant())
+                delay = getMilliseconds(startDate)
+                scheduleNotification(prevId.toInt(), title, delay)
+
                 startDateTime = startDateTime.plusWeeks(1)
             }
         }
@@ -176,6 +238,13 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
             var prevId = rootId
             while(startDateTime.compareTo(endDateTime) <= 0) {
                 prevId = dbHelper.addEvent(EventEntry(title, category, note, startDateTime, frequency = frequency, isRoot = false, rootId, prevId))
+
+                //SAMU
+                zdt = startDateTime.atZone(ZoneId.systemDefault())
+                startDate = Date.from(zdt.toInstant())
+                delay = getMilliseconds(startDate)
+                scheduleNotification(prevId.toInt(), title, delay)
+
                 startDateTime = startDateTime.plusMonths(1)
             }
         }
@@ -202,7 +271,16 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
                     endDay, endMonth, endYear, endTimeHour, endTimeMinute)
             }
             else {
-                val newEvent: EventEntry = EventEntry(title, category, note, LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute), frequency = frequency, isRoot = false, event.rootID, event.prevID)
+                //SAMU
+                val startDateTime = LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute)
+
+                val newEvent: EventEntry = EventEntry(title, category, note, startDateTime, frequency = frequency, isRoot = false, event.rootID, event.prevID)
+
+                //SAMU
+                val zdt = startDateTime.atZone(ZoneId.systemDefault())
+                val startDate = Date.from(zdt.toInstant())
+                delay = getMilliseconds(startDate)
+                scheduleNotification(eventIdOnEdit.toInt(), title, delay)
                 dbHelper.updateEvent(newEvent, event.id)
             }
         }
