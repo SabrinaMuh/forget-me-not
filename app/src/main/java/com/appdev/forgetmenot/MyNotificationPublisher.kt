@@ -12,15 +12,17 @@ import androidx.annotation.RequiresApi
 
 class MyNotificationPublisher: BroadcastReceiver() {
     val NOTIFICATION_ID: String = "notification-id"
+    val TITLE: String = "title"
     val TEXT: String = "text"
     var notificationManager: NotificationManager? = null
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onReceive(context: Context, intent: Intent) {
         notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val title = intent.getStringExtra(TITLE)
         val text = intent.getStringExtra(TEXT)
 
-        val notification = createNotification(context, text)
+        val notification = createNotification(context, title, text)
 
         val importance = NotificationManager.IMPORTANCE_HIGH
         //NOTE TO ME: Check this everytime before you use the app
@@ -37,15 +39,17 @@ class MyNotificationPublisher: BroadcastReceiver() {
 
     //create notification
     @RequiresApi(Build.VERSION_CODES.O)
-    fun createNotification(context: Context, text: String?): Notification {
+    fun createNotification(context: Context, title: String?, text: String?): Notification {
         return Notification.Builder(context, "forget-me-not")
-            .setTicker("Forget-Me-Not")
-            .setContentTitle("Forget-Me-Not")
+            .setTicker(title)
+            .setContentTitle(title)
             .setContentText(text)
-            .setSmallIcon(R.drawable.ic_stat_name)
+            .setSmallIcon(R.drawable.notification_icon)
             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
             .setVibrate(longArrayOf(1000, 1000, 1000, 1000, 1000))
             .setAutoCancel(true)
+            .setWhen(System.currentTimeMillis())
+            .setShowWhen(true)
             .build()
     }
 }

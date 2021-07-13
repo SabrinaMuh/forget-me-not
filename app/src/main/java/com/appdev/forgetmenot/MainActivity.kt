@@ -141,9 +141,10 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
     }
     //schedule notification
     @RequiresApi(Build.VERSION_CODES.M)
-    private fun scheduleNotification(notificationId: Int, text: String, delay: Long) {
+    private fun scheduleNotification(notificationId: Int, title: String, text: String, delay: Long) {
         val notificationIntent = Intent(this, MyNotificationPublisher::class.java)
         notificationIntent.putExtra(MyNotificationPublisher().NOTIFICATION_ID, notificationId)
+        notificationIntent.putExtra(MyNotificationPublisher().TITLE, title)
         notificationIntent.putExtra(MyNotificationPublisher().TEXT, text)
 
         //notificationid needs to be unique by pendingIntent
@@ -194,7 +195,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         var zdt = startDateTime.atZone(ZoneId.systemDefault())
         var startDate = Date.from(zdt.toInstant())
         delay = getMilliseconds(startDate)
-        scheduleNotification(rootId.toInt(), title, delay)
+        scheduleNotification(rootId.toInt(), title, note, delay)
 
         event.rootID = rootId
         dbHelper.updateEvent(event, rootId) // set rootid of root to itself
@@ -211,7 +212,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
                 zdt = startDateTime.atZone(ZoneId.systemDefault())
                 startDate = Date.from(zdt.toInstant())
                 delay = getMilliseconds(startDate)
-                scheduleNotification(prevId.toInt(), title, delay)
+                scheduleNotification(prevId.toInt(), title, note, delay)
 
                 startDateTime = startDateTime.plusDays(1)
             }
@@ -227,7 +228,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
                 zdt = startDateTime.atZone(ZoneId.systemDefault())
                 startDate = Date.from(zdt.toInstant())
                 delay = getMilliseconds(startDate)
-                scheduleNotification(prevId.toInt(), title, delay)
+                scheduleNotification(prevId.toInt(), title, note, delay)
 
                 startDateTime = startDateTime.plusWeeks(1)
             }
@@ -243,7 +244,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
                 zdt = startDateTime.atZone(ZoneId.systemDefault())
                 startDate = Date.from(zdt.toInstant())
                 delay = getMilliseconds(startDate)
-                scheduleNotification(prevId.toInt(), title, delay)
+                scheduleNotification(prevId.toInt(), title, note, delay)
 
                 startDateTime = startDateTime.plusMonths(1)
             }
@@ -280,7 +281,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
                 val zdt = startDateTime.atZone(ZoneId.systemDefault())
                 val startDate = Date.from(zdt.toInstant())
                 delay = getMilliseconds(startDate)
-                scheduleNotification(eventIdOnEdit.toInt(), title, delay)
+                scheduleNotification(eventIdOnEdit.toInt(), title, note, delay)
                 dbHelper.updateEvent(newEvent, event.id)
             }
         }
