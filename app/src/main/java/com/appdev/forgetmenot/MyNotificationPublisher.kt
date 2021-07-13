@@ -48,8 +48,6 @@ class MyNotificationPublisher: BroadcastReceiver() {
             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
             .setVibrate(longArrayOf(1000, 1000, 1000, 1000, 1000))
             .setAutoCancel(true)
-            .setWhen(System.currentTimeMillis())
-            .setShowWhen(true)
             .build()
     }
 }
