@@ -3,6 +3,7 @@ package com.appdev.forgetmenot
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -40,6 +41,10 @@ class MyNotificationPublisher: BroadcastReceiver() {
     //create notification
     @RequiresApi(Build.VERSION_CODES.O)
     fun createNotification(context: Context, title: String?, text: String?): Notification {
+        //open app after you clicked on the notification
+        val intent = Intent(context, MainActivity::class.java)
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+
         return Notification.Builder(context, "forget-me-not")
             .setTicker(title)
             .setContentTitle(title)
@@ -47,9 +52,10 @@ class MyNotificationPublisher: BroadcastReceiver() {
             .setSmallIcon(R.drawable.notification_icon)
             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
             .setVibrate(longArrayOf(1000, 1000, 1000, 1000, 1000))
-            .setAutoCancel(true)
             .setWhen(System.currentTimeMillis())
             .setShowWhen(true)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
             .build()
     }
 }
