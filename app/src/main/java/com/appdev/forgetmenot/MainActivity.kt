@@ -76,7 +76,16 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
             builder.setNegativeButton("DELETE", DialogInterface.OnClickListener { dialog, which ->
                 Log.i("UIAction", "delete button pressed")
 
-                cancelNotification(dbHelper.getEventById(id)?.title, id.toInt())
+                if (dbHelper.getEventById(id)!!.isRoot){
+                    cancelNotification(dbHelper.getEventById(id)?.title, id.toInt())
+                    var i: Long = id
+                    while (dbHelper.getEventById(i)!=null && dbHelper.getEventById(i)!!.rootID == id){
+                        cancelNotification(dbHelper.getEventById(i)?.title, i.toInt())
+                        i++
+                    }
+                }else{
+                    cancelNotification(dbHelper.getEventById(id)?.title, id.toInt())
+                }
                 dbHelper.deleteEventById(id)
                 val cursor: Cursor = dbHelper.getAllEvents()
                 adapter.changeCursor(cursor)
