@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.media.RingtoneManager
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -52,6 +53,7 @@ class MyNotificationPublisher: BroadcastReceiver() {
             .setSmallIcon(R.drawable.notification_icon)
             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
             .setVibrate(longArrayOf(1000, 1000, 1000, 1000, 1000))
+            .setLights(Color.BLUE, 3000, 3000)
             .setWhen(System.currentTimeMillis())
             .setShowWhen(true)
             .setContentIntent(pendingIntent)
