@@ -104,7 +104,15 @@ class DBHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
 
     fun getAllEvents() : Cursor {
         val db = this.readableDatabase
-        val query = "SELECT * FROM ${EventObject.Entry.TABLE_NAME}"
+        val query = "SELECT * FROM ${EventObject.Entry.TABLE_NAME} ORDER BY ${EventObject.Entry.COLUMN_NAME_DATETIME}"
+        Log.d("myDB", "read all events")
+        return db.rawQuery(query, null)
+    }
+
+
+    fun getAllEventsByTitle(title: String) : Cursor {
+        val db = this.readableDatabase
+        val query = "SELECT * FROM ${EventObject.Entry.TABLE_NAME} WHERE LOWER(${EventObject.Entry.COLUMN_NAME_TITLE}) = LOWER('$title')"
         Log.d("myDB", "read all events")
         return db.rawQuery(query, null)
     }
