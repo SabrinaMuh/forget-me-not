@@ -13,7 +13,7 @@
     <string name="start_datetime">Start Datetime:</string>
     <string name="info">Info</string>
     <string name="info_text"><b>Info</b>\n
-        This app should help you not to forget any more things. You can create events for daily, weekly or yearly. You can also delete or edit the posts.\n\n
+        This app should help you not to forget any more things. You can create events for daily, weekly or yearly. If you press longer on a post, you can edit or delete it.\n\n Posts that are a different color than others in this series of events are root posts. With these you can delete or edit an entire series of events.\n\n
         <b>Developer</b>\n
             Harald Moitzi\n
             Sabrina Muhrer\n
