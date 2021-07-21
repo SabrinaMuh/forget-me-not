@@ -13,7 +13,7 @@
     <string name="category_name">Kategorie Name</string>
     <string name="info">Info</string>
     <string name="info_text"><b>Info</b>\n
-        Diese App soll einem helfen keine Sachen mehr zu vergessen. Man kann Ereignisse für täglich, wöchentlich oder jährlich erstellen. Man kann die Beiträge auch löschen oder bearbeiten.\n\n
+        Diese App soll einem helfen keine Sachen mehr zu vergessen. Man kann Ereignisse für täglich, wöchentlich oder jährlich erstellen. Wenn man länger auf einem Beitrag drückt, kann man diesen bearbeiten oder löschen.\n\n Beiträge, die eine andere Farbe haben als die anderen in dieser Eventreihe, sind Wurzelbeiträge. Mit diesen kann man eine ganze Eventreihe löschen oder bearbeiten.\n\n
         <b>Entwickler</b>\n
             Harald Moitzi\n
             Sabrina Muhrer\n
