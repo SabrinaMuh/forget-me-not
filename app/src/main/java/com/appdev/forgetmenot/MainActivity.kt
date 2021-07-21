@@ -12,7 +12,10 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.AdapterView.OnItemLongClickListener
+import android.widget.EditText
 import android.widget.ListView
+import android.widget.SearchView
+import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -316,6 +319,33 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu, menu)
+
+        val searchItem = menu?.findItem(R.id.app_bar_search)
+
+        if(searchItem != null) {
+            val appBarSearch = searchItem.actionView as SearchView
+
+            appBarSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+
+                    return true
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    if(newText.isNullOrEmpty() == false) {
+                        val cursor: Cursor = dbHelper.getAllEventsByTitle(newText.trim())
+                        adapter.changeCursor(cursor)
+                    }
+                    else { // on empty string read all entries
+                        val cursor: Cursor = dbHelper.getAllEvents()
+                        adapter.changeCursor(cursor)
+                    }
+
+                    return true
+                }
+            })
+        }
+
         return true
     }
 
@@ -325,11 +355,20 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
             dialog.show(supportFragmentManager, "addCategorie")
             true
         }*/
-        R.id.info->{
+        R.id.info -> {
             val intent = Intent(this, InfoActivity::class.java)
             startActivity(intent)
             true
         }
+/*        R.id.app_bar_search -> {
+            val appBarSearch: SearchView = findViewById<SearchView>(R.id.app_bar_search)
+            val title: String = appBarSearch.query.toString().trim()
+
+            val cursor: Cursor = dbHelper.getAllEventsByTitle(title)
+            adapter.changeCursor(cursor)
+
+            true
+        }*/
         else -> {
             super.onOptionsItemSelected(item)
         }
