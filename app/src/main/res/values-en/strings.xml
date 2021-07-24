@@ -4,7 +4,7 @@
     <string name="title">Title</string>
     <string name="end_datetime">End Datetime:</string>
     <string name="save">Save</string>
-    <string name="chancel">Cancel</string>
+    <string name="cancel">Cancel</string>
     <string name="daily">Daily</string>
     <string name="weekly">Weekly</string>
     <string name="monthly">Monthly</string>
@@ -18,4 +18,5 @@
             Harald Moitzi\n
             Sabrina Muhrer\n
     </string>
+    <string name="warning">Please give the event a name!!!</string>
 </resources>

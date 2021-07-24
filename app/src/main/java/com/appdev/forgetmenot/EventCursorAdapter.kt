@@ -27,7 +27,7 @@ class EventCursorAdapter(context: Context, cursor: Cursor): CursorAdapter(contex
             "Job" to R.color.colorJob,
             "Education" to R.color.colorEducation,
             "Occasion" to R.color.colorOccasion,
-            "Other" to R.color.colorOther
+            "Others" to R.color.colorOther
         )
 
         private val CATEGORY_LOGOS = hashMapOf(
@@ -38,7 +38,7 @@ class EventCursorAdapter(context: Context, cursor: Cursor): CursorAdapter(contex
             "Job" to R.drawable.logo_work,
             "Education" to R.drawable.logo_education,
             "Occasion" to R.drawable.logo_occasion,
-            "Other" to R.drawable.logo_others
+            "Others" to R.drawable.logo_others
         )
     }
 
@@ -107,7 +107,7 @@ class EventCursorAdapter(context: Context, cursor: Cursor): CursorAdapter(contex
             ContextCompat.getColor(context, CATEGORY_COLORS[category] ?: R.color.colorPrimary)
         )
 
-        if(isRoot == 1) row.setBackgroundColor(Color.parseColor("#f0f0f0"))
+        //if(isRoot == 1) row.setBackgroundColor(Color.parseColor("#f0f0f0"))
     }
 
 }

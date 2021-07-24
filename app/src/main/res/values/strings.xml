@@ -10,7 +10,7 @@
     <string name="monthly">Monthly</string>
 
     <string name="save">Save</string>
-    <string name="chancel">Chancel</string>
+    <string name="cancel">Cancel</string>
 
     <string name="info">Info</string>
     <string name="info_text"><b>Info</b>\n
@@ -29,4 +29,5 @@
         <item>Important</item>
         <item>Others</item>
     </string-array>
+    <string name="warning">Please give the event a name!!!</string>
 </resources>
