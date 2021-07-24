@@ -33,7 +33,4 @@ class EventEntry
         this.prevID = prevID
     }
 
-/*    override fun toString(): String {
-        return this.title + " " + this.category + " " + this.time
-    }*/
 }

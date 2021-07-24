@@ -2,12 +2,14 @@ package com.appdev.forgetmenot
 
 import android.content.Context
 import android.database.Cursor
+import android.graphics.Color
 import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CursorAdapter
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
@@ -40,16 +42,6 @@ class EventCursorAdapter(context: Context, cursor: Cursor): CursorAdapter(contex
         )
     }
 
-/*    companion object {
-        private val CATEGORY_LOGOS = hashMapOf(
-            "Sport" to R.color.colorSport,
-            "Shopping" to R.color.colorShopping,
-            "Med" to R.drawable.logo_medical,
-            "Important" to R.color.colorImportant,
-            "Other" to R.color.colorOther
-        )
-    }*/
-
     // The newView method is used to inflate a new view and return it,
     // you don't bind any data to the view at this point.
     override fun newView(context: Context, cursor: Cursor, parent: ViewGroup?): View {
@@ -61,6 +53,8 @@ class EventCursorAdapter(context: Context, cursor: Cursor): CursorAdapter(contex
     @RequiresApi(Build.VERSION_CODES.O)
     override fun bindView(view: View, context: Context, cursor: Cursor) {
         // Find fields to populate in inflated template
+        val row = view.findViewById<RelativeLayout>(R.id.main_list_row_entry) as RelativeLayout
+
         val imgCat = view.findViewById<ImageView>(R.id.main_list_img) as ImageView
         val tvTitle = view.findViewById<TextView>(R.id.main_list_title) as TextView
         val tvCategory = view.findViewById<TextView>(R.id.main_list_cat) as TextView
@@ -89,17 +83,10 @@ class EventCursorAdapter(context: Context, cursor: Cursor): CursorAdapter(contex
         tvCategory.text = category
         tvNote.text = note
 
-        // CAST DOES NOT WORK --> EXCEPTION
-        // java.time.format.DateTimeParseException: Text '2021-06-15T11:00' could not be parsed at index 10
-
-        /*val formatter: DateTimeFormatter = DateTimeFormatter.ISO_DATE_TIME*/
 
         val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
         val tmpDatetime: LocalDateTime = LocalDateTime.parse(datetime, formatter)
         tvTime.text = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").format(tmpDatetime)
-
-
-/*        tvTime.text = datetime.replace('T', ' ')*/
 
 
         //formatting
@@ -120,5 +107,7 @@ class EventCursorAdapter(context: Context, cursor: Cursor): CursorAdapter(contex
             ContextCompat.getColor(context, CATEGORY_COLORS[category] ?: R.color.colorPrimary)
         )
 
+        if(isRoot == 1) row.setBackgroundColor(Color.parseColor("#f0f0f0"))
     }
+
 }

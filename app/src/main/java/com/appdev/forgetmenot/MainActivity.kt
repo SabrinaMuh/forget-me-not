@@ -33,20 +33,14 @@ import kotlin.collections.ArrayList
  * @authers: Sabrina Muhrer, Harald Moitzi
  */
 
-class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogListener, AddCategoryDialogFragment.NoticeDialogListener{
+class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogListener {
     lateinit var dbHelper: DBHelper  
   
     private lateinit var adapter: EventCursorAdapter
 
     var delay: Long = 0
 
-    /*[SAMU]>: old category version*/
     var categories: ArrayList<String> = arrayListOf("Medical", "Sport", "Shopping", "Important", "Job", "Education", "Occasion", "Others")
-    /*[SAMU]<: old category version*/
-
-    /*[HAMO]>: new category version*/
-    /*var categories: ArrayList<CategoryEntry> = ArrayList<CategoryEntry>()*/
-    /*[HAMO]<: new category version*/
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,10 +48,6 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         setContentView(R.layout.activity_main)
 
         dbHelper = DBHelper(applicationContext)
-
-        /*[HAMO]>: new category version*/
-        /*initCategories(dbHelper)*/
-        /*[HAMO]<: new category version*/
 
         val lvMain = findViewById<ListView>(R.id.lvMain)
 
@@ -79,19 +69,31 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
             builder.setNegativeButton("DELETE", DialogInterface.OnClickListener { dialog, which ->
                 Log.i("UIAction", "delete button pressed")
 
-                if (dbHelper.getEventById(id)!!.isRoot){
-                    cancelNotification(dbHelper.getEventById(id)?.title, id.toInt())
-                    var i: Long = id
-                    while (dbHelper.getEventById(i)!=null && dbHelper.getEventById(i)!!.rootID == id){
-                        cancelNotification(dbHelper.getEventById(i)?.title, i.toInt())
-                        i++
+                val builder2 = AlertDialog.Builder(this)
+                builder2.setMessage("Please note that deleting the first event of a series, will delete the whole series").setTitle("Really delete Event?")
+
+                builder2.setPositiveButton("Yes", DialogInterface.OnClickListener { dialog2, which ->
+                    if (dbHelper.getEventById(id)!!.isRoot) {
+                        cancelNotification(dbHelper.getEventById(id)?.title, id.toInt())
+                        var i: Long = id
+                        while (dbHelper.getEventById(i) != null && dbHelper.getEventById(i)!!.rootID == id) {
+                            cancelNotification(dbHelper.getEventById(i)?.title, i.toInt())
+                            i++
+                        }
+                    } else {
+                        cancelNotification(dbHelper.getEventById(id)?.title, id.toInt())
                     }
-                }else{
-                    cancelNotification(dbHelper.getEventById(id)?.title, id.toInt())
-                }
-                dbHelper.deleteEventById(id)
-                val cursor: Cursor = dbHelper.getAllEvents()
-                adapter.changeCursor(cursor)
+                    dbHelper.deleteEventById(id)
+                    val cursor: Cursor = dbHelper.getAllEvents()
+                    adapter.changeCursor(cursor)
+                })
+
+                builder2.setNegativeButton("No", DialogInterface.OnClickListener { dialog2, which ->
+                })
+
+                val dialog2 = builder2.create()
+                dialog2.show()
+
             })
             builder.setPositiveButton("EDIT", DialogInterface.OnClickListener { dialog, which ->
                 Log.i("UIAction", "edit button pressed")
@@ -101,13 +103,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
 
                 val event: EventEntry? = dbHelper.getEventById(id)
 
-/*[SAMU]>: old category version*/
                 args.putStringArrayList("categories", categories)
-/*[SAMU]<: old category version*/
-
-/*[HAMO]>: new category version*/
-/*                args.putSerializable("categories", categories)*/
-/*[HAMO]<: new category version*/
 
                 args.putSerializable("event", event)
                 dialog.arguments = args
@@ -124,7 +120,6 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         button.setOnClickListener {
             val dialog = AddEnteryDialogFragment()
             val args = Bundle()
-/*            args.putStringArrayList("categories", categories)*/
             args.putSerializable("categories", categories)
             dialog.arguments = args
             dialog.show(supportFragmentManager, "addEntery")
@@ -303,19 +298,6 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         adapter.changeCursor(cursor)
     }
 
-    override fun onAddCategoryDialogPositiveClick(title: String){
-/*[SAMU]>: old category version*/
-        categories.add(title)
-/*[SAMU]<: old category version*/
-
-        /*[HAMO]>: new category version*/
-/*        categories.add((CategoryEntry(title, null)))
-        dbHelper.addCategory(title, "","")*/
-        /*[HAMO]<: new category version*/
-
-        Snackbar.make(findViewById(R.id.view), "Added Category", Snackbar.LENGTH_LONG).show()
-        //Toast.makeText(this, "Added Category", Toast.LENGTH_SHORT).show()
-    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu, menu)
@@ -324,6 +306,7 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
 
         if(searchItem != null) {
             val appBarSearch = searchItem.actionView as SearchView
+            appBarSearch.queryHint = "search for title"
 
             appBarSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
@@ -350,102 +333,14 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId){
-        /*R.id.add_category->{
-            val dialog = AddCategoryDialogFragment()
-            dialog.show(supportFragmentManager, "addCategorie")
-            true
-        }*/
         R.id.info -> {
             val intent = Intent(this, InfoActivity::class.java)
             startActivity(intent)
             true
         }
-/*        R.id.app_bar_search -> {
-            val appBarSearch: SearchView = findViewById<SearchView>(R.id.app_bar_search)
-            val title: String = appBarSearch.query.toString().trim()
-
-            val cursor: Cursor = dbHelper.getAllEventsByTitle(title)
-            adapter.changeCursor(cursor)
-
-            true
-        }*/
         else -> {
             super.onOptionsItemSelected(item)
         }
     }
-
-
-/*    @RequiresApi(Build.VERSION_CODES.O)
-    fun initCategories(dbHelper: DBHelper)
-    {
-        var cursorCategory: Cursor = dbHelper.getAllCategories()
-
-        // init categories
-        if(cursorCategory.count == 0) {
-            dbHelper.addCategory("Important", "#FF4081", "")
-            dbHelper.addCategory("Sport", "#4183D7", "")
-            dbHelper.addCategory("Medical", "#D2527F", "")
-            dbHelper.addCategory("Shopping", "#F4D03F", "")
-            dbHelper.addCategory("Other", "#26A65B", "")
-
-            cursorCategory = dbHelper.getAllCategories()
-        }
-
-        with(cursorCategory) {
-            while(moveToNext()) {
-                val name = getString(getColumnIndex(DBHelper.CategoryObject.Entry.COLUMN_NAME_NAME))
-                val color = getString(getColumnIndex(DBHelper.CategoryObject.Entry.COLUMN_NAME_COLOR))
-                val img = getString(getColumnIndex(DBHelper.CategoryObject.Entry.COLUMN_NAME_IMG))
-
-                if(color.isNullOrEmpty()) {
-                    categories.add(CategoryEntry(name, null, img))
-                }
-                else {
-                    categories.add(CategoryEntry(name, Color.valueOf(Color.parseColor(color)), img))
-                }
-            }
-        }
-    }*/
-
-/*[HAMO]>: new category version*/
-/*    @RequiresApi(Build.VERSION_CODES.O)
-    fun createDB() {
-        dbHelper = DBHelper(applicationContext)
-        dbHelper.deleteAllEvents()
-
-        dbHelper.addEvent(
-            EventEntry("Fleisch", "Shopping",
-                LocalDateTime.of(2021, 6, 15, 11, 0, 0, 0), isRoot = true, rootID = 1
-            )
-        )
-
-        dbHelper.addEvent(EventEntry("Cola", "Shopping", LocalDateTime.of(2021, 6, 22, 11, 0, 0, 0), rootID = 1))
-
-        dbHelper.addEvent(EventEntry("Zahnpasta", "Shopping", LocalDateTime.of(2021, 6, 29, 11, 0, 0, 0), rootID = 1))
-
-        // root-event
-        var dateTime: LocalDateTime = LocalDateTime.of(2021, 6, 15, 18, 0, 0, 0)
-        var entry: EventEntry = EventEntry("Laufen", "Sport", dateTime, isRoot = true)
-        var root_id = dbHelper.addEvent(entry)
-
-        //set just created id as root_id of the root entry
-        entry.rootID = root_id
-        var count_updated: Int = dbHelper.updateEvent(entry, root_id)
-        Log.d("myDB", "$count_updated updated")
-
-        var prevId: Long = root_id
-
-        var x = 9
-        do {
-            dateTime = dateTime.plusDays(1)
-            entry = EventEntry("Laufen", "Sport", dateTime, rootID = root_id, prevID = prevId)
-            prevId = dbHelper.addEvent(entry) // new prevId for next entry
-            x--
-        } while(x > 0)
-
-        val count = dbHelper.deleteEventById(13)
-        Log.d("myDB", "$count deleted")
-    }*/
-/*[HAMO]<: new category version*/
 
 }

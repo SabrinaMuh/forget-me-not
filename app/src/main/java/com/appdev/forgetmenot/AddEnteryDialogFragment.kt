@@ -2,11 +2,13 @@ package com.appdev.forgetmenot
 
 import android.app.AlertDialog
 import android.app.Dialog
+import android.app.TimePickerDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Build
 import android.os.Bundle
 import android.widget.*
+import android.widget.TimePicker.OnTimeChangedListener
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
 import java.util.*
@@ -14,6 +16,23 @@ import java.util.*
 
 class AddEnteryDialogFragment : DialogFragment(){
     internal lateinit var listener: NoticeDialogListener
+
+    private val TIME_PICKER_INTERVAL = 15
+    private var mIgnoreEvent = false
+
+    private val mTimePickerListener =
+        OnTimeChangedListener { timePicker, hourOfDay, minute ->
+            var minute = minute
+            if (mIgnoreEvent) return@OnTimeChangedListener
+            if (minute % TIME_PICKER_INTERVAL !== 0) {
+                val minuteFloor: Int = minute - minute % TIME_PICKER_INTERVAL
+                minute = minuteFloor + if (minute == minuteFloor + 1) TIME_PICKER_INTERVAL else 0
+                if (minute == 60) minute = 0
+                mIgnoreEvent = true
+                timePicker.currentMinute = minute
+                mIgnoreEvent = false
+            }
+        }
 
     interface NoticeDialogListener{
         fun onAddEnteryDialogPositiveClick(evendIdOnEdit: Long, title: String, category: String, note: String, startDay: Int, startMonth: Int,
@@ -49,30 +68,23 @@ class AddEnteryDialogFragment : DialogFragment(){
 
             val args: Bundle = requireArguments()
 
-/*[SAMU]>: old category version*/
             val categories: ArrayList <String> = args.getStringArrayList("categories") as ArrayList<String>
             val adapter: ArrayAdapter<String> = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categories)
-/*[SAMU]<: old category version*/
 
             var event: EventEntry? = null
             if(args.containsKey("event")) {
                 event = args.getSerializable("event") as EventEntry
             }
 
-/*[HAMO]>: new category version*/
-/*            val myCategories: ArrayList <CategoryEntry> = args.getSerializable("categories") as ArrayList<CategoryEntry>
-            val categories: ArrayList <String> = ArrayList <String>()
-
-            for(item: CategoryEntry in myCategories) {
-                categories.add(item.name)
-            }
-
-            val adapter: ArrayAdapter<String> = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categories)*/
-/*[HAMO]<: new category version*/
-
             spinner.adapter = adapter
             timePickerStart.setIs24HourView(true)
             timePickerEnd.setIs24HourView(true)
+
+            timePickerStart.minute = timePickerStart.minute - (timePickerStart.minute % TIME_PICKER_INTERVAL)
+            timePickerEnd.minute = timePickerEnd.minute - (timePickerEnd.minute % TIME_PICKER_INTERVAL)
+
+            timePickerStart.setOnTimeChangedListener(mTimePickerListener)
+            timePickerEnd.setOnTimeChangedListener(mTimePickerListener)
 
             //EDIT --> fill fields of selected Event
             if(event != null) {
@@ -117,16 +129,16 @@ class AddEnteryDialogFragment : DialogFragment(){
                         val note: String = note.text.toString()
                         val selectedRadioButton: Int = radioGroup.checkedRadioButtonId
                         val radioButton = view.findViewById<RadioButton>(selectedRadioButton)
-                        val startDateDay: Int = datePickerStart.dayOfMonth
 
-                        /* [HAMO]: at Edit don't calculate + 1 month, cause month is already +1 */
-/*                        val startDateMonth: Int = if(eventIdOnEdit.compareTo(0) == 0) datePickerStart.month + 1; else  datePickerStart.month;*/
+                        val startDateDay: Int = datePickerStart.dayOfMonth
                         val startDateMonth: Int = datePickerStart.month;
 
                         val startDateYear: Int = datePickerStart.year
                         val startTimeHour: Int = timePickerStart.hour
                         val startTimeMinute: Int = timePickerStart.minute
+
                         var frequency: String = "null"
+
                         if(radioButton != null){
                             val mySelection = view.findViewById(R.id.radio_group) as RadioGroup
                             val radioButtonId = mySelection.checkedRadioButtonId
@@ -137,8 +149,6 @@ class AddEnteryDialogFragment : DialogFragment(){
                             }
                         }
                         val endDateDay: Int = datePickerEnd.dayOfMonth
-                        /* [HAMO]: at Edit don't calculate + 1 month, cause month is already +1 */
-/*                        val endDateMonth: Int = if(eventIdOnEdit.compareTo(0) == 0) datePickerEnd.month + 1; else datePickerEnd.month*/
                         val endDateMonth: Int = datePickerEnd.month
 
                         val endDateYear: Int = datePickerEnd.year
