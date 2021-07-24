@@ -5,7 +5,7 @@
     <string name="start_datetime">Start Zeitpunkt:</string>
     <string name="end_datetime">Ende Zeitpunkt:</string>
     <string name="save">Speichern</string>
-    <string name="chancel">Abbruch</string>
+    <string name="cancel">Abbruch</string>
     <string name="daily">Täglich</string>
     <string name="weekly">Wöchentlich</string>
     <string name="monthly">Monatlich</string>
@@ -18,4 +18,5 @@
             Harald Moitzi\n
             Sabrina Muhrer\n
     </string>
+    <string name="warning">Bitte gib dem Ereignis einen Namen!!!</string>
 </resources>
