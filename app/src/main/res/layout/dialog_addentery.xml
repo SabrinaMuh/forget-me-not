@@ -196,6 +196,7 @@
             android:layout_weight="1"
             android:background="#000000"
             android:text="@string/cancel"
+            android:textColor="#FFFFFF"
             app:backgroundTint="#AEAEAE" />
 
         <Button
@@ -206,6 +207,7 @@
             android:layout_weight="1"
             android:background="#000000"
             android:text="@string/save"
+            android:textColor="#FFFFFF"
             app:backgroundTint="#AEAEAE" />
     </LinearLayout>
 
