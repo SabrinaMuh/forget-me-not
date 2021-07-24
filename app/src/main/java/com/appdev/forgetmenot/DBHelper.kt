@@ -210,11 +210,6 @@ class DBHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
             put(EventObject.Entry.COLUMN_NAME_CATEGORY, entry.category)
             put(EventObject.Entry.COLUMN_NAME_DATETIME, entry.dateTime.toString())
             put(EventObject.Entry.COLUMN_NAME_FREQUENCY, entry.frequency)
-            //save as ISO8601 string: YYYY-MM-DD HH:MM:SS.SSS
-/*            put(
-                EventObject.Entry.COLUMN_NAME_DATETIME,
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS").format(entry.dateTime)
-            )*/
             put(EventObject.Entry.COLUMN_NAME_IS_ROOT, entry.isRoot)
             put(EventObject.Entry.COLUMN_NAME_ROOT_ID, entry.rootID)
             put(EventObject.Entry.COLUMN_NAME_PREV_ID, entry.prevID)
@@ -273,13 +268,6 @@ class DBHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
                     arrayOf("$id")
                 )
             }
-
-            // delete current event
-/*            count = db.delete(
-                EventObject.Entry.TABLE_NAME,
-                " ${BaseColumns._ID} = ?",
-                arrayOf("$id")
-            )*/
         }
 
         Log.d("myDB", "event with $id deleted: count $count")
@@ -291,7 +279,6 @@ class DBHelper(context: Context): SQLiteOpenHelper(context, DATABASE_NAME, null,
     fun getLastEventOfSeries(rootId: Long) : EventEntry? {
         val db = this.readableDatabase
         val query = "SELECT ${BaseColumns._ID} FROM ${EventObject.Entry.TABLE_NAME} " +
-/*        val query = "SELECT _id FROM ${EventObject.Entry.TABLE_NAME} " +*/
                 "WHERE ${EventObject.Entry.COLUMN_NAME_ROOT_ID} = ${rootId} " +
                 "AND ${EventObject.Entry.COLUMN_NAME_DATETIME} = " +
                 "(SELECT MAX(${EventObject.Entry.COLUMN_NAME_DATETIME}) FROM EVENT " +
