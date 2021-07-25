@@ -29,5 +29,15 @@
         <item>Important</item>
         <item>Others</item>
     </string-array>
-    <string name="warning">Please give the event a name!!!</string>
+    <string name="warning">Please give the event a name</string>
+
+    <string name="dialog_delete_event_title">Really delete Event?</string>
+    <string name="dialog_delete_root_event_message">Please note that deleting the first event of a series, will delete the whole series</string>
+    <string name="dialog_yes">Yes</string>
+    <string name="dialog_no">No</string>
+    <string name="dialog_edit_or_delete_title">Edit or Delete Event?</string>
+    <string name="dialog_edit_or_delete_message">Please choose your option</string>
+    <string name="dialog_delete">Delete</string>
+    <string name="dialog_edit">Edit</string>
+
 </resources>

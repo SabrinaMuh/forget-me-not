@@ -18,7 +18,7 @@ import java.util.*
 class AddEnteryDialogFragment : DialogFragment(){
     internal lateinit var listener: NoticeDialogListener
 
-    private val TIME_PICKER_INTERVAL = 15
+/*    private val TIME_PICKER_INTERVAL = 15
     private var mIgnoreEvent = false
 
     private val mTimePickerListener =
@@ -33,7 +33,7 @@ class AddEnteryDialogFragment : DialogFragment(){
                 timePicker.currentMinute = minute
                 mIgnoreEvent = false
             }
-        }
+        }*/
 
     interface NoticeDialogListener{
         fun onAddEnteryDialogPositiveClick(evendIdOnEdit: Long, title: String, category: String, note: String, startDay: Int, startMonth: Int,
@@ -82,11 +82,11 @@ class AddEnteryDialogFragment : DialogFragment(){
             timePickerStart.setIs24HourView(true)
             timePickerEnd.setIs24HourView(true)
 
-            timePickerStart.minute = timePickerStart.minute - (timePickerStart.minute % TIME_PICKER_INTERVAL)
+/*            timePickerStart.minute = timePickerStart.minute - (timePickerStart.minute % TIME_PICKER_INTERVAL)
             timePickerEnd.minute = timePickerEnd.minute - (timePickerEnd.minute % TIME_PICKER_INTERVAL)
 
             timePickerStart.setOnTimeChangedListener(mTimePickerListener)
-            timePickerEnd.setOnTimeChangedListener(mTimePickerListener)
+            timePickerEnd.setOnTimeChangedListener(mTimePickerListener)*/
 
             //EDIT --> fill fields of selected Event
             if(event != null) {
@@ -158,9 +158,26 @@ class AddEnteryDialogFragment : DialogFragment(){
                 val endTimeMinute: Int = timePickerEnd.minute
 
                 if (title != "") {
-                    listener.onAddEnteryDialogPositiveClick(eventIdOnEdit, title, category, note, startDateDay, startDateMonth, startDateYear, startTimeHour, startTimeMinute, frequency, endDateDay, endDateMonth, endDateYear, endTimeHour, endTimeMinute)
+                    listener.onAddEnteryDialogPositiveClick(
+                        eventIdOnEdit,
+                        title,
+                        category,
+                        note,
+                        startDateDay,
+                        startDateMonth,
+                        startDateYear,
+                        startTimeHour,
+                        startTimeMinute,
+                        frequency,
+                        endDateDay,
+                        endDateMonth,
+                        endDateYear,
+                        endTimeHour,
+                        endTimeMinute
+                    )
                     dismiss()
-                }else tvWarning.visibility = View.VISIBLE
+                }
+                else tvWarning.visibility = View.VISIBLE
             }
 
             val buttonCancel = view.findViewById<Button>(R.id.buttonCancel)
