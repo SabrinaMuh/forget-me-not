@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import android.widget.*
 import android.widget.TimePicker.OnTimeChangedListener
 import androidx.annotation.RequiresApi
@@ -65,6 +66,7 @@ class AddEnteryDialogFragment : DialogFragment(){
             val datePickerEnd = view.findViewById<DatePicker>(R.id.date_picker_end)
             val radioGroup = view.findViewById<RadioGroup>(R.id.radio_group)
             val timePickerEnd = view.findViewById<TimePicker>(R.id.time_picker_end)
+            val tvWarning = view.findViewById<TextView>(R.id.textViewWarning)
 
             val args: Bundle = requireArguments()
 
@@ -121,46 +123,50 @@ class AddEnteryDialogFragment : DialogFragment(){
 
 
             builder.setView(view)
-                .setPositiveButton(R.string.save,
-                    DialogInterface.OnClickListener { dialog, id ->
-                        val eventIdOnEdit: Long = tvEventIdOnEdit.text.toString().toLong()
-                        val title: String = editText.text.toString()
-                        val category: String = spinner.selectedItem.toString()
-                        val note: String = note.text.toString()
-                        val selectedRadioButton: Int = radioGroup.checkedRadioButtonId
-                        val radioButton = view.findViewById<RadioButton>(selectedRadioButton)
+            val buttonSave = view.findViewById<Button>(R.id.buttonSave)
+            buttonSave.setOnClickListener {
+                val eventIdOnEdit: Long = tvEventIdOnEdit.text.toString().toLong()
+                val title: String = editText.text.toString()
+                val category: String = spinner.selectedItem.toString()
+                val note: String = note.text.toString()
+                val selectedRadioButton: Int = radioGroup.checkedRadioButtonId
+                val radioButton = view.findViewById<RadioButton>(selectedRadioButton)
 
-                        val startDateDay: Int = datePickerStart.dayOfMonth
-                        val startDateMonth: Int = datePickerStart.month;
+                val startDateDay: Int = datePickerStart.dayOfMonth
+                val startDateMonth: Int = datePickerStart.month;
 
-                        val startDateYear: Int = datePickerStart.year
-                        val startTimeHour: Int = timePickerStart.hour
-                        val startTimeMinute: Int = timePickerStart.minute
+                val startDateYear: Int = datePickerStart.year
+                val startTimeHour: Int = timePickerStart.hour
+                val startTimeMinute: Int = timePickerStart.minute
 
-                        var frequency: String = "null"
+                var frequency: String = "null"
 
-                        if(radioButton != null){
-                            val mySelection = view.findViewById(R.id.radio_group) as RadioGroup
-                            val radioButtonId = mySelection.checkedRadioButtonId
-                            when (radioButtonId) {
-                                R.id.daily -> frequency = "daily"
-                                R.id.weekly -> frequency = "weekly"
-                                R.id.monthly -> frequency = "monthly"
-                            }
-                        }
-                        val endDateDay: Int = datePickerEnd.dayOfMonth
-                        val endDateMonth: Int = datePickerEnd.month
+                if(radioButton != null){
+                    val mySelection = view.findViewById(R.id.radio_group) as RadioGroup
+                    val radioButtonId = mySelection.checkedRadioButtonId
+                    when (radioButtonId) {
+                        R.id.daily -> frequency = "daily"
+                        R.id.weekly -> frequency = "weekly"
+                        R.id.monthly -> frequency = "monthly"
+                    }
+                }
+                val endDateDay: Int = datePickerEnd.dayOfMonth
+                val endDateMonth: Int = datePickerEnd.month
 
-                        val endDateYear: Int = datePickerEnd.year
-                        val endTimeHour: Int = timePickerEnd.hour
-                        val endTimeMinute: Int = timePickerEnd.minute
+                val endDateYear: Int = datePickerEnd.year
+                val endTimeHour: Int = timePickerEnd.hour
+                val endTimeMinute: Int = timePickerEnd.minute
 
-                        listener.onAddEnteryDialogPositiveClick(eventIdOnEdit, title, category, note, startDateDay, startDateMonth, startDateYear, startTimeHour, startTimeMinute, frequency, endDateDay, endDateMonth, endDateYear, endTimeHour, endTimeMinute)
-                    })
-                .setNegativeButton(R.string.chancel,
-                    DialogInterface.OnClickListener { dialog, id ->
-                        getDialog()?.cancel()
-                    })
+                if (title != "") {
+                    listener.onAddEnteryDialogPositiveClick(eventIdOnEdit, title, category, note, startDateDay, startDateMonth, startDateYear, startTimeHour, startTimeMinute, frequency, endDateDay, endDateMonth, endDateYear, endTimeHour, endTimeMinute)
+                    dismiss()
+                }else tvWarning.visibility = View.VISIBLE
+            }
+
+            val buttonCancel = view.findViewById<Button>(R.id.buttonCancel)
+            buttonCancel.setOnClickListener {
+                dismiss()
+            }
             builder.create()
         } ?:throw IllegalStateException("Activity cannot be null")
     }
