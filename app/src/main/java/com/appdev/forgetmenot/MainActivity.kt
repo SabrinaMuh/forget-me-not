@@ -12,10 +12,8 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.AdapterView.OnItemLongClickListener
-import android.widget.EditText
 import android.widget.ListView
 import android.widget.SearchView
-import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -23,6 +21,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -49,6 +48,11 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
 
         dbHelper = DBHelper(applicationContext)
 
+        //init example events
+        if(dbHelper.getAllEvents().count == 0) {
+            initExampleEntries()
+        }
+
         val lvMain = findViewById<ListView>(R.id.lvMain)
 
         // NOW: reading out of DB
@@ -60,42 +64,54 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
             /*Toast.makeText(applicationContext, "long clicked", Toast.LENGTH_SHORT).show()*/
 
             val builder = AlertDialog.Builder(this)
-            builder.setMessage("Please choose your option").setTitle("Edit or Delete Event?")
+            builder.setMessage(R.string.dialog_edit_or_delete_message).setTitle(R.string.dialog_edit_or_delete_title)
 
-            builder.setNeutralButton("CANCEL", DialogInterface.OnClickListener { dialog, which ->
+            builder.setNeutralButton(R.string.cancel, DialogInterface.OnClickListener { dialog, which ->
                 Log.i("UIAction", "cancel button pressed")
                 Log.i("UIAction", "ID $id") // is the id of the database
             })
-            builder.setNegativeButton("DELETE", DialogInterface.OnClickListener { dialog, which ->
+            builder.setNegativeButton(R.string.dialog_delete, DialogInterface.OnClickListener { dialog, which ->
                 Log.i("UIAction", "delete button pressed")
 
-                val builder2 = AlertDialog.Builder(this)
-                builder2.setMessage("Please note that deleting the first event of a series, will delete the whole series").setTitle("Really delete Event?")
+                val event: EventEntry? = dbHelper.getEventById(id)
 
-                builder2.setPositiveButton("Yes", DialogInterface.OnClickListener { dialog2, which ->
-                    if (dbHelper.getEventById(id)!!.isRoot) {
-                        cancelNotification(dbHelper.getEventById(id)?.title, id.toInt())
-                        var i: Long = id
-                        while (dbHelper.getEventById(i) != null && dbHelper.getEventById(i)!!.rootID == id) {
-                            cancelNotification(dbHelper.getEventById(i)?.title, i.toInt())
-                            i++
-                        }
-                    } else {
-                        cancelNotification(dbHelper.getEventById(id)?.title, id.toInt())
+                if(event != null) {
+                    val builder2 = AlertDialog.Builder(this)
+
+                    if(event.isRoot) {
+                        builder2.setMessage(R.string.dialog_delete_root_event_message)
                     }
-                    dbHelper.deleteEventById(id)
-                    val cursor: Cursor = dbHelper.getAllEvents()
-                    adapter.changeCursor(cursor)
-                })
 
-                builder2.setNegativeButton("No", DialogInterface.OnClickListener { dialog2, which ->
-                })
+                    builder2.setTitle(R.string.dialog_delete_event_title)
 
-                val dialog2 = builder2.create()
-                dialog2.show()
+                    builder2.setPositiveButton(
+                        R.string.dialog_yes,
+                        DialogInterface.OnClickListener { dialog2, which ->
+                            if (event!!.isRoot) {
+                                cancelNotification(event!!.title, id.toInt())
+                                var i: Long = id
+                                while (dbHelper.getEventById(i) != null && dbHelper.getEventById(i)!!.rootID == id) {
+                                    cancelNotification(dbHelper.getEventById(i)?.title, i.toInt())
+                                    i++
+                                }
+                            } else {
+                                cancelNotification(event!!.title, id.toInt())
+                            }
+                            dbHelper.deleteEventById(id)
+                            val cursor: Cursor = dbHelper.getAllEvents()
+                            adapter.changeCursor(cursor)
+                        })
 
+                    builder2.setNegativeButton(
+                        R.string.dialog_no,
+                        DialogInterface.OnClickListener { dialog2, which ->
+                        })
+
+                    val dialog2 = builder2.create()
+                    dialog2.show()
+                }
             })
-            builder.setPositiveButton("EDIT", DialogInterface.OnClickListener { dialog, which ->
+            builder.setPositiveButton(R.string.dialog_edit, DialogInterface.OnClickListener { dialog, which ->
                 Log.i("UIAction", "edit button pressed")
 
                 val dialog = AddEnteryDialogFragment()
@@ -279,7 +295,6 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
                     endDay, endMonth, endYear, endTimeHour, endTimeMinute)
             }
             else {
-                //SAMU
                 val startDateTime = LocalDateTime.of(startYear, startMonth, startDay, startTimeHour, startTimeMinute)
 
                 val newEvent: EventEntry = EventEntry(title, category, note, startDateTime, frequency = frequency, isRoot = false, event.rootID, event.prevID)
@@ -341,6 +356,40 @@ class MainActivity : AppCompatActivity(), AddEnteryDialogFragment.NoticeDialogLi
         else -> {
             super.onOptionsItemSelected(item)
         }
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun initExampleEntries() {
+        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
+
+        var event: EventEntry = EventEntry("Running", "Sport", "series example", LocalDateTime.parse("2021-09-01T18:00", formatter), "daily", true, 0, 0)
+        var rootId = dbHelper.addEvent(event)
+        event.rootID = rootId
+        dbHelper.updateEvent(event, rootId)
+
+        event = EventEntry("Running", "Sport", "series example", LocalDateTime.parse("2021-09-02T18:00", formatter), "daily", false, rootId, rootId)
+        var id = dbHelper.addEvent(event)
+        event = EventEntry("Running", "Sport", "series example", LocalDateTime.parse("2021-09-03T18:00", formatter), "daily", false, rootId, id)
+        id = dbHelper.addEvent(event)
+        event = EventEntry("Running", "Sport", "series example", LocalDateTime.parse("2021-09-04T18:00", formatter), "daily", false, rootId, id)
+        id = dbHelper.addEvent(event)
+        event = EventEntry("Running", "Sport", "series example", LocalDateTime.parse("2021-09-05T18:00", formatter), "daily", false, rootId, id)
+        id = dbHelper.addEvent(event)
+        event = EventEntry("Running", "Sport", "series example", LocalDateTime.parse("2021-09-06T18:00", formatter), "daily", false, rootId, id)
+        id = dbHelper.addEvent(event)
+        event = EventEntry("Running", "Sport", "series example", LocalDateTime.parse("2021-09-07T18:00", formatter), "daily", false, rootId, id)
+        id = dbHelper.addEvent(event)
+
+        event = EventEntry("Project", "Education", "one time event", LocalDateTime.parse("2021-07-31T23:00", formatter), "daily", true, 0, 0)
+        rootId = dbHelper.addEvent(event)
+        event.rootID = rootId
+        dbHelper.updateEvent(event, rootId)
+
+        event = EventEntry("Birthday", "Occasion", "one time event", LocalDateTime.parse("2021-09-03T08:00", formatter), "daily", true, 0, 0)
+        rootId = dbHelper.addEvent(event)
+        event.rootID = rootId
+        dbHelper.updateEvent(event, rootId)
     }
 
 }

@@ -18,5 +18,15 @@
             Harald Moitzi\n
             Sabrina Muhrer\n
     </string>
-    <string name="warning">Bitte gib dem Ereignis einen Namen!!!</string>
+    <string name="warning">Bitte gib dem Ereignis einen Namen</string>
+
+    <string name="dialog_delete_event_title">Ereignis wirklich löschen?</string>
+    <string name="dialog_delete_root_event_message">Hinweis: Wenn Sie das Wurzel-Ereignis löschen, wird die ganze Serie gelöscht</string>
+    <string name="dialog_yes">Ja</string>
+    <string name="dialog_no">Nein</string>
+    <string name="dialog_edit_or_delete_title">Ereignis bearbeiten oder löschen?</string>
+    <string name="dialog_edit_or_delete_message">Bitte um Auswahl</string>
+    <string name="dialog_delete">Löschen</string>
+    <string name="dialog_edit">Bearbeiten</string>
+
 </resources>
